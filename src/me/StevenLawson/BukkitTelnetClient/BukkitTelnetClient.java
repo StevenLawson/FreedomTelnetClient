@@ -122,6 +122,12 @@ public class BukkitTelnetClient extends javax.swing.JFrame
     {
         String selected_server = (String) txt_server.getSelectedItem();
 
+        if (selected_server == null || selected_server.isEmpty())
+        {
+            System.out.println("Invalid server address.");
+            return;
+        }
+
         try
         {
             if (server_list.contains(selected_server))
