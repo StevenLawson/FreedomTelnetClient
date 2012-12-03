@@ -1,30 +1,45 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package me.StevenLawson.BukkitTelnetClient;
 
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-/**
-
- @author
- Steven
- */
 public class BukkitTelnetClient extends javax.swing.JFrame
 {
+    public static final String SERVERS_FILE_NAME = "btc_servers.cfg";
+    private static final Logger logger = Logger.getLogger("BukkitTelnetClient");
     private BTC_ConnectionManager connection_mgr;
+    private final LinkedList<String> server_list = new LinkedList<String>();
 
     public BukkitTelnetClient()
     {
         initComponents();
+        txt_server.getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyTyped(KeyEvent e)
+            {
+                if (e.getKeyChar() == KeyEvent.VK_ENTER)
+                {
+                    saveServersAndTriggerConnect();
+                }
+            }
+        });
         redirectSystemStreams();
+        loadServerList();
         connection_mgr = new BTC_ConnectionManager(this);
     }
 
@@ -76,9 +91,69 @@ public class BukkitTelnetClient extends javax.swing.JFrame
         System.setErr(new PrintStream(out, true));
     }
 
+    private void loadServerList()
+    {
+        try
+        {
+            server_list.clear();
+            txt_server.removeAllItems();
+
+            File file = new File(SERVERS_FILE_NAME);
+            if (file.exists())
+            {
+                BufferedReader in = new BufferedReader(new FileReader(file));
+                String line;
+                while ((line = in.readLine()) != null)
+                {
+                    line = line.trim();
+                    server_list.add(line);
+                    txt_server.addItem(line);
+                }
+                in.close();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void saveServersAndTriggerConnect()
+    {
+        String selected_server = (String) txt_server.getSelectedItem();
+
+        try
+        {
+            if (server_list.contains(selected_server))
+            {
+                server_list.remove(selected_server);
+            }
+
+            server_list.addFirst(selected_server);
+
+            BufferedWriter out = new BufferedWriter(new FileWriter(new File(SERVERS_FILE_NAME)));
+
+            for (String server : server_list)
+            {
+                out.write(server + '\n');
+            }
+
+            out.close();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.SEVERE, null, ex);
+        }
+
+        loadServerList();
+
+        connection_mgr.trigger_connect(selected_server);
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         main_output = new javax.swing.JTextPane();
@@ -86,9 +161,9 @@ public class BukkitTelnetClient extends javax.swing.JFrame
         btn_connect = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        txt_server = new javax.swing.JTextField();
         btn_disconnect = new javax.swing.JButton();
         btn_send = new javax.swing.JButton();
+        txt_server = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BukkitTelnetClient");
@@ -98,15 +173,19 @@ public class BukkitTelnetClient extends javax.swing.JFrame
         jScrollPane1.setViewportView(main_output);
 
         txt_command.setEnabled(false);
-        txt_command.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+        txt_command.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyPressed(java.awt.event.KeyEvent evt)
+            {
                 txt_commandKeyPressed(evt);
             }
         });
 
         btn_connect.setText("Connect");
-        btn_connect.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        btn_connect.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
                 btn_connectMouseClicked(evt);
             }
         });
@@ -115,28 +194,27 @@ public class BukkitTelnetClient extends javax.swing.JFrame
 
         jLabel2.setText("Server:");
 
-        txt_server.setText("tf.madgeekonline.com:28995");
-        txt_server.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txt_serverKeyPressed(evt);
-            }
-        });
-
         btn_disconnect.setText("Disconnect");
         btn_disconnect.setEnabled(false);
-        btn_disconnect.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        btn_disconnect.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
                 btn_disconnectMouseClicked(evt);
             }
         });
 
         btn_send.setText("Send");
         btn_send.setEnabled(false);
-        btn_send.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        btn_send.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
                 btn_sendMouseClicked(evt);
             }
         });
+
+        txt_server.setEditable(true);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -150,13 +228,10 @@ public class BukkitTelnetClient extends javax.swing.JFrame
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(txt_command))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(17, 17, 17)
-                                .addComponent(txt_server, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)))
+                            .addComponent(txt_command, javax.swing.GroupLayout.DEFAULT_SIZE, 566, Short.MAX_VALUE)
+                            .addComponent(txt_server, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
@@ -181,27 +256,15 @@ public class BukkitTelnetClient extends javax.swing.JFrame
                     .addComponent(btn_send))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_server, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(btn_connect)
-                    .addComponent(btn_disconnect))
+                    .addComponent(btn_disconnect)
+                    .addComponent(txt_server, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void txt_serverKeyPressed(java.awt.event.KeyEvent evt)//GEN-FIRST:event_txt_serverKeyPressed
-    {//GEN-HEADEREND:event_txt_serverKeyPressed
-        if (!txt_server.isEnabled())
-        {
-            return;
-        }
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER)
-        {
-            connection_mgr.trigger_connect(txt_server.getText());
-        }
-    }//GEN-LAST:event_txt_serverKeyPressed
 
     private void btn_connectMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_btn_connectMouseClicked
     {//GEN-HEADEREND:event_btn_connectMouseClicked
@@ -209,7 +272,7 @@ public class BukkitTelnetClient extends javax.swing.JFrame
         {
             return;
         }
-        connection_mgr.trigger_connect(txt_server.getText());
+        saveServersAndTriggerConnect();
     }//GEN-LAST:event_btn_connectMouseClicked
 
     private void btn_disconnectMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_btn_disconnectMouseClicked
@@ -257,21 +320,9 @@ public class BukkitTelnetClient extends javax.swing.JFrame
                 }
             }
         }
-        catch (ClassNotFoundException ex)
+        catch (Exception ex)
         {
-            java.util.logging.Logger.getLogger(BukkitTelnetClient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch (InstantiationException ex)
-        {
-            java.util.logging.Logger.getLogger(BukkitTelnetClient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch (IllegalAccessException ex)
-        {
-            java.util.logging.Logger.getLogger(BukkitTelnetClient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch (javax.swing.UnsupportedLookAndFeelException ex)
-        {
-            java.util.logging.Logger.getLogger(BukkitTelnetClient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
 
         java.awt.EventQueue.invokeLater(new Runnable()
@@ -291,7 +342,7 @@ public class BukkitTelnetClient extends javax.swing.JFrame
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextPane main_output;
     private javax.swing.JTextField txt_command;
-    private javax.swing.JTextField txt_server;
+    private javax.swing.JComboBox txt_server;
     // End of variables declaration//GEN-END:variables
 
     public javax.swing.JButton getBtn_connect()
@@ -319,7 +370,7 @@ public class BukkitTelnetClient extends javax.swing.JFrame
         return txt_command;
     }
 
-    public javax.swing.JTextField getTxt_server()
+    public javax.swing.JComboBox getTxt_server()
     {
         return txt_server;
     }

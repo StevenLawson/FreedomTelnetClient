@@ -32,15 +32,10 @@
                           <Component id="jLabel2" max="32767" attributes="0"/>
                           <Component id="jLabel1" max="32767" attributes="0"/>
                       </Group>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="txt_command" max="32767" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
-                              <Component id="txt_server" pref="567" max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="txt_command" pref="566" max="32767" attributes="0"/>
+                          <Component id="txt_server" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -70,10 +65,10 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="txt_server" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="btn_connect" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="btn_disconnect" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="txt_server" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -124,14 +119,6 @@
         <Property name="text" type="java.lang.String" value="Server:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="txt_server">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="tf.madgeekonline.com:28995"/>
-      </Properties>
-      <Events>
-        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_serverKeyPressed"/>
-      </Events>
-    </Component>
     <Component class="javax.swing.JButton" name="btn_disconnect">
       <Properties>
         <Property name="text" type="java.lang.String" value="Disconnect"/>
@@ -149,6 +136,14 @@
       <Events>
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btn_sendMouseClicked"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="txt_server">
+      <Properties>
+        <Property name="editable" type="boolean" value="true"/>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="0"/>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>
