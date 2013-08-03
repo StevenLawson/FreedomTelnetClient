@@ -29,6 +29,8 @@ public class BTC_ConnectionManager
         btc.getTxt_server().setEnabled(false);
         btc.getBtn_disconnect().setEnabled(true);
 
+        this.btc.setTitle("BukkitTelnetClient - v1.3 - " + hostname + ":" + port);
+
         System.out.println("Connecting to " + hostname + ":" + port + "...");
 
         this.hostname = hostname;
@@ -85,6 +87,8 @@ public class BTC_ConnectionManager
         btc.getBtn_disconnect().setEnabled(false);
         btc.getBtn_send().setEnabled(false);
         btc.getTxt_command().setEnabled(false);
+
+        this.btc.setTitle("BukkitTelnetClient - v1.3 - Disconnected");
 
         System.out.println("\nDisconnected.");
     }
