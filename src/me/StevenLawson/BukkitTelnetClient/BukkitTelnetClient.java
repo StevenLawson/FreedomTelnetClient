@@ -1,5 +1,7 @@
 package me.StevenLawson.BukkitTelnetClient;
 
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
@@ -10,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +33,8 @@ public class BukkitTelnetClient extends javax.swing.JFrame
         btc = new BukkitTelnetClient();
 
         btc.initComponents();
+        
+        btc.setIcon();
 
         btc.setLocationRelativeTo(null);
 
@@ -434,5 +439,13 @@ public class BukkitTelnetClient extends javax.swing.JFrame
     public javax.swing.JComboBox getTxt_server()
     {
         return txt_server;
+    }
+    
+    public void setIcon()
+    {
+        URL icon = ClassLoader.getSystemResource("me/StevenLawson/BukkitTelnetClient/icon.png");
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        Image icon_img = kit.createImage(icon);
+        setIconImage(icon_img);
     }
 }
