@@ -1,6 +1,7 @@
 package me.StevenLawson.BukkitTelnetClient;
 
 import java.awt.Color;
+import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
@@ -9,6 +10,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -43,6 +45,12 @@ public class BTC_MainPanel extends javax.swing.JFrame
         });
 
         this.loadServerList();
+
+        final URL icon = this.getClass().getResource("/icon.png");
+        if (icon != null)
+        {
+            setIconImage(Toolkit.getDefaultToolkit().createImage(icon));
+        }
 
         this.setLocationRelativeTo(null);
         this.setVisible(true);
