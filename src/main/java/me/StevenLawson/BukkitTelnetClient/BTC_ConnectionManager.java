@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
@@ -158,10 +159,21 @@ public class BTC_ConnectionManager
                                 if (read == '\n')
                                 {
                                     final String line = consoleBuffer.toString();
-                                    if (!BTC_FormatHandler.skipLine(line))
+
+                                    final Map<String, BTC_PlayerListDecoder.PlayerInfo> playerList = BTC_PlayerListDecoder.decodePlayerListMessage(line);
+
+                                    if (playerList != null)
                                     {
-                                        System.out.print(line);
+                                        btc.updatePlayerList(playerList);
                                     }
+                                    else
+                                    {
+                                        if (!BTC_FormatHandler.skipLine(line))
+                                        {
+                                            System.out.print(line);
+                                        }
+                                    }
+
                                     consoleBuffer.reset();
                                 }
                             }

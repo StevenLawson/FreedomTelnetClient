@@ -5,18 +5,26 @@ import java.util.regex.Pattern;
 
 public class BTC_FormatHandler
 {
+    private static final Color PURPLE = new Color(128, 0, 128);
+    private static final Color DARK_GREEN = new Color(86, 130, 3);
+
     private static final Pattern CHAT_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\<");
     private static final Pattern SAY_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\[Server:");
-    private static final Pattern ADMINSAY_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\[TotalFreedomMod\\] \\[ADMIN\\] ");
     private static final Pattern CSAY_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\[CONSOLE\\]<");
+
+    private static final Pattern ADMINSAY_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\[TotalFreedomMod\\] \\[ADMIN\\] ");
 
     private static final Pattern WORLD_EDIT = Pattern.compile("^:\\[.+? INFO\\]: WorldEdit: ");
 
     private static final Pattern PREPROCESS_COMMAND = Pattern.compile("^:\\[.+? INFO\\]: \\[PREPROCESS_COMMAND\\] ");
-    private static final Color DARK_GREEN = new Color(86, 130, 3);
 
     private static final Pattern ISSUED_SERVER_COMMAND = Pattern.compile("^:\\[.+? INFO\\]: .+? issued server command: ");
     private static final Pattern PLAYER_COMMAND = Pattern.compile("^:\\[.+? INFO\\]: \\[PLAYER_COMMAND\\] ");
+
+    private BTC_FormatHandler()
+    {
+        throw new AssertionError();
+    }
 
     public static final boolean skipLine(String line)
     {
@@ -50,9 +58,13 @@ public class BTC_FormatHandler
     {
         Color color = Color.BLACK;
 
-        if (CHAT_MESSAGE.matcher(text).find() || SAY_MESSAGE.matcher(text).find() || ADMINSAY_MESSAGE.matcher(text).find() || CSAY_MESSAGE.matcher(text).find())
+        if (CHAT_MESSAGE.matcher(text).find() || SAY_MESSAGE.matcher(text).find() || CSAY_MESSAGE.matcher(text).find())
         {
             color = Color.BLUE;
+        }
+        else if (ADMINSAY_MESSAGE.matcher(text).find())
+        {
+            color = PURPLE;
         }
         else if (WORLD_EDIT.matcher(text).find())
         {
