@@ -28,6 +28,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
@@ -225,6 +226,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 final JTable table = BTC_MainPanel.this.tblPlayers;
                 final DefaultTableModel model = (DefaultTableModel) table.getModel();
 
+                final PlayerInfo player = getSelectedPlayer();
+
                 model.setRowCount(0);
 
                 final Iterator<Map.Entry<String, PlayerInfo>> it = playerList.entrySet().iterator();
@@ -239,6 +242,21 @@ public class BTC_MainPanel extends javax.swing.JFrame
                         playerInfo.getDisplayName(),
                         playerInfo.getIp()
                     });
+                }
+
+                if (player != null)
+                {
+                    final int modelCol = table.convertColumnIndexToModel(0);
+                    final int rowCount = table.getRowCount();
+                    for (int row = 0; row < rowCount; row++)
+                    {
+                        if (player.getName().equals(table.getValueAt(row, modelCol).toString()))
+                        {
+                            final ListSelectionModel selectionModel = table.getSelectionModel();
+                            selectionModel.setSelectionInterval(0, row);
+                            break;
+                        }
+                    }
                 }
             }
         });
