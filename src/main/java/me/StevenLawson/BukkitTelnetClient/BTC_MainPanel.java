@@ -10,10 +10,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,13 +37,19 @@ public class BTC_MainPanel extends javax.swing.JFrame
 {
     private static final String SERVERS_FILE_NAME = "btc_servers.cfg";
 
+    public static final ByteArrayOutputStream CONSOLE = new ByteArrayOutputStream();
+    public static final PrintStream CONSOLE_STREAM = new PrintStream(CONSOLE);
+
     private final BTC_ConnectionManager connectionManager = new BTC_ConnectionManager();
     private final LinkedList<String> serverList = new LinkedList<>();
 
     public BTC_MainPanel()
     {
         initComponents();
+    }
 
+    public void setup()
+    {
         this.txtServer.getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
         {
             @Override
@@ -66,31 +74,143 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         setupTablePopup();
 
+        this.connectionManager.updateTitle(false);
+
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 
-    public static final class CommandMenuItem extends JMenuItem
+    public final void updateTextPane(final String text)
     {
-        private final ServerCommand command;
-        private final BTC_PlayerListDecoder.PlayerInfo player;
-
-        public CommandMenuItem(String text, ServerCommand command, BTC_PlayerListDecoder.PlayerInfo player)
+        SwingUtilities.invokeLater(new Runnable()
         {
-            super(text);
-            this.command = command;
-            this.player = player;
+            @Override
+            public void run()
+            {
+                final StyledDocument styledDocument = mainOutput.getStyledDocument();
+
+                try
+                {
+                    styledDocument.insertString(
+                            styledDocument.getLength(),
+                            text,
+                            StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, BTC_FormatHandler.getColor(text))
+                    );
+                }
+                catch (BadLocationException ex)
+                {
+                    throw new RuntimeException(ex);
+                }
+
+                if (BTC_MainPanel.this.chkAutoScroll.isSelected() && BTC_MainPanel.this.mainOutput.getSelectedText() == null)
+                {
+                    BTC_MainPanel.this.mainOutput.setCaretPosition(styledDocument.getLength() - 1);
+                }
+            }
+        });
+    }
+
+    public final void updateConsole()
+    {
+        final String data = CONSOLE.toString();
+        CONSOLE.reset();
+
+        final String[] lines = data.split("\\n");
+        for (String line : lines)
+        {
+            updateTextPane(line + '\n');
+        }
+    }
+
+    public final void writeToConsole(String line)
+    {
+        CONSOLE_STREAM.append(line);
+        updateConsole();
+    }
+
+    public final PlayerInfo getSelectedPlayer()
+    {
+        String name = null;
+        String ip = null;
+        String displayName = null;
+
+        final JTable table = BTC_MainPanel.this.tblPlayers;
+        final DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+        final int selectedRow = table.getSelectedRow();
+        if (selectedRow < 0)
+        {
+            return null;
         }
 
-        public ServerCommand getCommand()
+        for (int col = 0; col <= 2; col++)
         {
-            return command;
+            final int modelRow = table.convertRowIndexToModel(selectedRow);
+            final int modelCol = table.convertColumnIndexToModel(col);
+
+            final String colName = model.getColumnName(modelCol);
+            final Object value = model.getValueAt(modelRow, modelCol);
+
+            if (null != colName)
+            {
+                switch (colName)
+                {
+                    case "Name":
+                    {
+                        name = value.toString();
+                        break;
+                    }
+                    case "IP":
+                    {
+                        ip = value.toString();
+                        break;
+                    }
+                    case "Display Name":
+                    {
+                        displayName = value.toString();
+                        break;
+                    }
+                }
+            }
         }
 
-        public BTC_PlayerListDecoder.PlayerInfo getPlayer()
+        if (name != null && ip != null & displayName != null)
         {
-            return player;
+            return new PlayerInfo(name, ip, displayName);
         }
+        else
+        {
+            return null;
+        }
+    }
+
+    public final void updatePlayerList(final Map<String, PlayerInfo> playerList)
+    {
+        EventQueue.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                final JTable table = BTC_MainPanel.this.tblPlayers;
+                final DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+                model.setRowCount(0);
+
+                final Iterator<Map.Entry<String, PlayerInfo>> it = playerList.entrySet().iterator();
+                while (it.hasNext())
+                {
+                    final Map.Entry<String, PlayerInfo> entry = it.next();
+                    PlayerInfo playerInfo = entry.getValue();
+
+                    model.addRow(new Object[]
+                    {
+                        playerInfo.getName(),
+                        playerInfo.getDisplayName(),
+                        playerInfo.getIp()
+                    });
+                }
+            }
+        });
     }
 
     public static enum ServerCommand
@@ -124,6 +244,29 @@ public class BTC_MainPanel extends javax.swing.JFrame
         }
     }
 
+    public static final class CommandMenuItem extends JMenuItem
+    {
+        private final ServerCommand command;
+        private final PlayerInfo player;
+
+        public CommandMenuItem(String text, ServerCommand command, PlayerInfo player)
+        {
+            super(text);
+            this.command = command;
+            this.player = player;
+        }
+
+        public ServerCommand getCommand()
+        {
+            return command;
+        }
+
+        public PlayerInfo getPlayer()
+        {
+            return player;
+        }
+    }
+
     public final void setupTablePopup()
     {
         this.tblPlayers.addMouseListener(new MouseAdapter()
@@ -150,7 +293,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 }
                 if (mouseEvent.isPopupTrigger() && mouseEvent.getComponent() instanceof JTable)
                 {
-                    final BTC_PlayerListDecoder.PlayerInfo player = getSelectedPlayer();
+                    final PlayerInfo player = getSelectedPlayer();
                     if (player != null)
                     {
                         final JPopupMenu popup = new JPopupMenu(player.getName());
@@ -170,11 +313,11 @@ public class BTC_MainPanel extends javax.swing.JFrame
                                 if (_source instanceof CommandMenuItem)
                                 {
                                     final CommandMenuItem source = (CommandMenuItem) _source;
-                                    final BTC_PlayerListDecoder.PlayerInfo _player = source.getPlayer();
+                                    final PlayerInfo _player = source.getPlayer();
                                     final ServerCommand _command = source.getCommand();
                                     final String output = String.format(_command.getCommandFormat(), _player.getName());
 
-                                    BTC_MainPanel.this.getConnectionManager().sendDelayedCommand(output, true, 100);
+                                    BTC_MainPanel.this.connectionManager.sendDelayedCommand(output, true, 100);
                                 }
                             }
                         };
@@ -193,128 +336,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         });
     }
 
-    public final void updateTextPane(final String text)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                final StyledDocument styledDocument = mainOutput.getStyledDocument();
-
-                try
-                {
-                    styledDocument.insertString(
-                            styledDocument.getLength(),
-                            text,
-                            StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, BTC_FormatHandler.getColor(text))
-                    );
-                }
-                catch (BadLocationException ex)
-                {
-                    throw new RuntimeException(ex);
-                }
-
-                if (BTC_MainPanel.this.chkAutoScroll.isSelected() && BTC_MainPanel.this.mainOutput.getSelectedText() == null)
-                {
-                    BTC_MainPanel.this.mainOutput.setCaretPosition(styledDocument.getLength() - 1);
-                }
-            }
-        });
-    }
-
-    public BTC_PlayerListDecoder.PlayerInfo getSelectedPlayer()
-    {
-        String name = null;
-        String ip = null;
-        String displayName = null;
-
-        final JTable table = BTC_MainPanel.this.tblPlayers;
-        final DefaultTableModel model = (DefaultTableModel) table.getModel();
-
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow < 0)
-        {
-            return null;
-        }
-
-        for (int col = 0; col <= 2; col++)
-        {
-            int modelRow = table.convertRowIndexToModel(selectedRow);
-            int modelCol = table.convertColumnIndexToModel(col);
-
-            String colName = model.getColumnName(modelCol);
-            Object value = model.getValueAt(modelRow, modelCol);
-
-            if (null != colName)
-            {
-                switch (colName)
-                {
-                    case "Name":
-                    {
-                        name = value.toString();
-                        break;
-                    }
-                    case "IP":
-                    {
-                        ip = value.toString();
-                        break;
-                    }
-                    case "Display Name":
-                    {
-                        displayName = value.toString();
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (name != null && ip != null & displayName != null)
-        {
-            return new BTC_PlayerListDecoder.PlayerInfo(name, ip, displayName);
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public final void updatePlayerList(final Map<String, BTC_PlayerListDecoder.PlayerInfo> playerList)
-    {
-        EventQueue.invokeLater(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                final JTable table = BTC_MainPanel.this.tblPlayers;
-                final DefaultTableModel model = (DefaultTableModel) table.getModel();
-
-                model.setRowCount(0);
-
-                final Iterator<Map.Entry<String, BTC_PlayerListDecoder.PlayerInfo>> it = playerList.entrySet().iterator();
-                while (it.hasNext())
-                {
-                    final Map.Entry<String, BTC_PlayerListDecoder.PlayerInfo> entry = it.next();
-                    BTC_PlayerListDecoder.PlayerInfo playerInfo = entry.getValue();
-
-                    model.addRow(new Object[]
-                    {
-                        playerInfo.getName(),
-                        playerInfo.getDisplayName(),
-                        playerInfo.getIp()
-                    });
-                }
-            }
-        });
-    }
-
-    public void updateConsole()
-    {
-        final String data = BukkitTelnetClient.CONSOLE.toString();
-        BukkitTelnetClient.CONSOLE.reset();
-        BTC_MainPanel.this.updateTextPane(data);
-    }
-
     public final void loadServerList()
     {
         try
@@ -322,10 +343,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
             serverList.clear();
             txtServer.removeAllItems();
 
-            File file = new File(SERVERS_FILE_NAME);
+            final File file = new File(SERVERS_FILE_NAME);
             if (file.exists())
             {
-                try (BufferedReader in = new BufferedReader(new FileReader(file)))
+                try (final BufferedReader in = new BufferedReader(new FileReader(file)))
                 {
                     String line;
                     while ((line = in.readLine()) != null)
@@ -345,25 +366,25 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     public final void saveServersAndTriggerConnect()
     {
-        String selected_server = (String) txtServer.getSelectedItem();
+        final String selectedServer = (String) txtServer.getSelectedItem();
 
-        if (selected_server == null || selected_server.isEmpty())
+        if (selectedServer == null || selectedServer.isEmpty())
         {
-            System.out.println("Invalid server address.");
+            writeToConsole("Invalid server address.\n");
             return;
         }
 
         try
         {
-            if (serverList.contains(selected_server))
+            if (serverList.contains(selectedServer))
             {
-                serverList.remove(selected_server);
+                serverList.remove(selectedServer);
             }
 
-            serverList.addFirst(selected_server);
-            try (BufferedWriter out = new BufferedWriter(new FileWriter(new File(SERVERS_FILE_NAME))))
+            serverList.addFirst(selectedServer);
+            try (final BufferedWriter out = new BufferedWriter(new FileWriter(new File(SERVERS_FILE_NAME))))
             {
-                for (String server : serverList)
+                for (final String server : serverList)
                 {
                     out.write(server + '\n');
                 }
@@ -376,7 +397,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         loadServerList();
 
-        connectionManager.triggerConnect(selected_server);
+        connectionManager.triggerConnect(selectedServer);
     }
 
     @SuppressWarnings("unchecked")
@@ -761,10 +782,5 @@ public class BTC_MainPanel extends javax.swing.JFrame
     public JCheckBox getChkShowChatOnly()
     {
         return chkShowChatOnly;
-    }
-
-    public BTC_ConnectionManager getConnectionManager()
-    {
-        return connectionManager;
     }
 }

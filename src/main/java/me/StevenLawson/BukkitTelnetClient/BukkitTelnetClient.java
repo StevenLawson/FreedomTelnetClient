@@ -1,70 +1,17 @@
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UnsupportedLookAndFeelException;
-import org.apache.commons.io.output.TeeOutputStream;
 
 public class BukkitTelnetClient
 {
     public static final String VERSION_STRING = "v2.0.3";
-
     public static final Logger LOGGER = Logger.getLogger(BukkitTelnetClient.class.getName());
-    public static final ByteArrayOutputStream CONSOLE = new ByteArrayOutputStream();
-
     public static BTC_MainPanel mainPanel = null;
 
     public static void main(String args[])
     {
-        final PrintStream guiConsole = new PrintStream(CONSOLE, true)
-        {
-            @Override
-            public void write(byte[] bytes) throws IOException
-            {
-                super.write(bytes);
-                if (mainPanel != null)
-                {
-                    mainPanel.updateConsole();
-                }
-            }
-
-            @Override
-            public void write(int i)
-            {
-                super.write(i);
-                if (mainPanel != null)
-                {
-                    mainPanel.updateConsole();
-                }
-            }
-
-            @Override
-            public void write(byte[] bytes, int i, int i1)
-            {
-                super.write(bytes, i, i1);
-                if (mainPanel != null)
-                {
-                    mainPanel.updateConsole();
-                }
-            }
-
-            @Override
-            public void flush()
-            {
-                super.flush();
-                if (mainPanel != null)
-                {
-                    mainPanel.updateConsole();
-                }
-            }
-        };
-
-        System.setOut(new PrintStream(new TeeOutputStream(System.out, guiConsole)));
-        System.setErr(new PrintStream(new TeeOutputStream(System.err, guiConsole)));
-
         findAndSetLookAndFeel("Windows");
 
         java.awt.EventQueue.invokeLater(new Runnable()
@@ -73,7 +20,7 @@ public class BukkitTelnetClient
             public void run()
             {
                 mainPanel = new BTC_MainPanel();
-                mainPanel.getConnectionManager().updateTitle(false);
+                mainPanel.setup();
             }
         });
     }
