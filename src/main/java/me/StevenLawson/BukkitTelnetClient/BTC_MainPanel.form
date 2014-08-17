@@ -44,7 +44,7 @@
   <SubComponents>
     <Container class="javax.swing.JSplitPane" name="splitPane">
       <Properties>
-        <Property name="dividerLocation" type="int" value="700"/>
+        <Property name="resizeWeight" type="double" value="1.0"/>
       </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
@@ -62,7 +62,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jScrollPane1" max="32767" attributes="0"/>
+                          <Component id="mainOutputScoll" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="jLabel2" max="32767" attributes="0"/>
@@ -93,7 +93,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="360" max="32767" attributes="0"/>
+                      <Component id="mainOutputScoll" pref="360" max="32767" attributes="0"/>
                       <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="txtCommand" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -114,7 +114,7 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+            <Container class="javax.swing.JScrollPane" name="mainOutputScoll">
               <AuxValues>
                 <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
               </AuxValues>
@@ -125,7 +125,7 @@
                   <Properties>
                     <Property name="editable" type="boolean" value="false"/>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                      <Font name="Courier New" size="12" style="0"/>
+                      <Font name="Courier New" size="11" style="0"/>
                     </Property>
                   </Properties>
                 </Component>

@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -25,8 +26,10 @@ import java.util.logging.Level;
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollBar;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -71,8 +74,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
             setIconImage(Toolkit.getDefaultToolkit().createImage(icon));
         }
 
-        this.splitPane.setResizeWeight(1.0);
-
         setupTablePopup();
 
         this.connectionManager.updateTitle(false);
@@ -81,8 +82,13 @@ public class BTC_MainPanel extends javax.swing.JFrame
         this.setVisible(true);
     }
 
-    public final void updateTextPane(final String text)
+    public final void updateTextPane(final String line)
     {
+        if (line.isEmpty())
+        {
+            return;
+        }
+
         SwingUtilities.invokeLater(new Runnable()
         {
             @Override
@@ -90,12 +96,14 @@ public class BTC_MainPanel extends javax.swing.JFrame
             {
                 final StyledDocument styledDocument = mainOutput.getStyledDocument();
 
+                int startLength = styledDocument.getLength();
+
                 try
                 {
                     styledDocument.insertString(
                             styledDocument.getLength(),
-                            text,
-                            StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, BTC_FormatHandler.getColor(text))
+                            line,
+                            StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, BTC_FormatHandler.getColor(line))
                     );
                 }
                 catch (BadLocationException ex)
@@ -105,7 +113,26 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
                 if (BTC_MainPanel.this.chkAutoScroll.isSelected() && BTC_MainPanel.this.mainOutput.getSelectedText() == null)
                 {
-                    BTC_MainPanel.this.mainOutput.setCaretPosition(styledDocument.getLength() - 1);
+                    final JScrollBar vScroll = mainOutputScoll.getVerticalScrollBar();
+
+                    if (!vScroll.getValueIsAdjusting())
+                    {
+                        if (vScroll.getValue() + vScroll.getModel().getExtent() >= (vScroll.getMaximum() - 10))
+                        {
+                            BTC_MainPanel.this.mainOutput.setCaretPosition(startLength);
+
+                            final Timer timer = new Timer(10, new ActionListener()
+                            {
+                                @Override
+                                public void actionPerformed(ActionEvent ae)
+                                {
+                                    vScroll.setValue(vScroll.getMaximum());
+                                }
+                            });
+                            timer.setRepeats(false);
+                            timer.start();
+                        }
+                    }
                 }
             }
         });
@@ -119,7 +146,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
         final String[] lines = data.split("\\n");
         for (String line : lines)
         {
-            updateTextPane(line + '\n');
+            if (!line.isEmpty())
+            {
+                updateTextPane(line + '\n');
+            }
         }
     }
 
@@ -458,7 +488,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         splitPane = new javax.swing.JSplitPane();
         jPanel3 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        mainOutputScoll = new javax.swing.JScrollPane();
         mainOutput = new javax.swing.JTextPane();
         btnDisconnect = new javax.swing.JButton();
         btnSend = new javax.swing.JButton();
@@ -480,11 +510,11 @@ public class BTC_MainPanel extends javax.swing.JFrame
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BukkitTelnetClient");
 
-        splitPane.setDividerLocation(700);
+        splitPane.setResizeWeight(1.0);
 
         mainOutput.setEditable(false);
-        mainOutput.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
-        jScrollPane1.setViewportView(mainOutput);
+        mainOutput.setFont(new java.awt.Font("Courier New", 0, 11)); // NOI18N
+        mainOutputScoll.setViewportView(mainOutput);
 
         btnDisconnect.setText("Disconnect");
         btnDisconnect.setEnabled(false);
@@ -547,7 +577,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(mainOutputScoll)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -573,7 +603,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                .addComponent(mainOutputScoll, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCommand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -622,7 +652,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 return canEdit [columnIndex];
             }
         });
-        tblPlayers.setRowSelectionAllowed(true);
         tblPlayers.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(tblPlayers);
         tblPlayers.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -724,7 +753,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     private void chkAutoScrollActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_chkAutoScrollActionPerformed
     {//GEN-HEADEREND:event_chkAutoScrollActionPerformed
-        updateTextPane("");
+//        updateTextPane("");
     }//GEN-LAST:event_chkAutoScrollActionPerformed
 
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnConnectActionPerformed
@@ -775,10 +804,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextPane mainOutput;
+    private javax.swing.JScrollPane mainOutputScoll;
     private javax.swing.JSplitPane splitPane;
     private javax.swing.JTable tblPlayers;
     private javax.swing.JTextField txtCommand;

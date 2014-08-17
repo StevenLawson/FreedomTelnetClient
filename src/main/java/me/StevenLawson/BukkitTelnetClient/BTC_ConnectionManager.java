@@ -20,6 +20,7 @@ public class BTC_ConnectionManager
     private int port;
     private boolean canDoDisconnect = false;
     private String loginName;
+    final ByteArrayOutputStream consoleBuffer = new ByteArrayOutputStream();
 
     public BTC_ConnectionManager()
     {
@@ -113,7 +114,12 @@ public class BTC_ConnectionManager
         {
             if (verbose)
             {
-                BTC_MainPanel.CONSOLE_STREAM.format("%s\r\n", text);
+                final BTC_MainPanel btc = BukkitTelnetClient.mainPanel;
+
+                String buffer = consoleBuffer.toString();
+                consoleBuffer.reset();
+
+                btc.writeToConsole(buffer + text);
             }
 
             this.telnetClient.getOutputStream().write((text + "\n").getBytes());
@@ -153,7 +159,6 @@ public class BTC_ConnectionManager
             public void run()
             {
                 final BTC_MainPanel btc = BukkitTelnetClient.mainPanel;
-                final ByteArrayOutputStream consoleBuffer = new ByteArrayOutputStream();
 
                 try
                 {
@@ -232,7 +237,8 @@ public class BTC_ConnectionManager
                 }
                 catch (IOException ex)
                 {
-                    BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+                    ex.printStackTrace(BTC_MainPanel.CONSOLE_STREAM);
+                    btc.updateConsole();
                 }
 
                 finishDisconnect();
