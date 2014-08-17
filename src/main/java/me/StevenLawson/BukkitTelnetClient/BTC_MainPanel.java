@@ -79,6 +79,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         this.connectionManager.updateTitle(false);
 
+        this.tblPlayers.getRowSorter().toggleSortOrder(0);
+
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
@@ -531,7 +533,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         splitPane.setResizeWeight(1.0);
 
         mainOutput.setEditable(false);
-        mainOutput.setFont(new java.awt.Font("Courier New", 0, 11)); // NOI18N
+        mainOutput.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
         mainOutputScoll.setViewportView(mainOutput);
 
         btnDisconnect.setText("Disconnect");
@@ -741,16 +743,16 @@ public class BTC_MainPanel extends javax.swing.JFrame
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(0, 0, 0)
                 .addComponent(splitPane)
-                .addContainerGap())
+                .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(0, 0, 0)
                 .addComponent(splitPane)
-                .addContainerGap())
+                .addGap(0, 0, 0))
         );
 
         pack();
