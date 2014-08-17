@@ -21,13 +21,15 @@ public class BTC_ConnectionManager
     private int port;
     private boolean canDoDisconnect = false;
     private String loginName;
+    private final ByteArrayOutputStream consoleBuffer = new ByteArrayOutputStream();
+    private final PrintStream consoleStream = new PrintStream(consoleBuffer);
 
     public BTC_ConnectionManager()
     {
         this.telnetClient = new TelnetClient();
     }
 
-    public void triggerConnect(String hostname, int port)
+    public void triggerConnect(final String hostname, final int port)
     {
         final BTC_MainPanel btc = BukkitTelnetClient.mainPanel;
 
@@ -45,7 +47,7 @@ public class BTC_ConnectionManager
         startConnectThread();
     }
 
-    public void triggerConnect(String hostnameAndPort)
+    public void triggerConnect(final String hostnameAndPort)
     {
         final String[] parts = StringUtils.split(hostnameAndPort, ":");
 
@@ -103,15 +105,12 @@ public class BTC_ConnectionManager
         System.out.println("\nDisconnected.");
     }
 
-    private final ByteArrayOutputStream consoleBuffer = new ByteArrayOutputStream();
-    private final PrintStream consoleStream = new PrintStream(consoleBuffer);
-
-    public void sendCommand(String text)
+    public void sendCommand(final String text)
     {
         sendCommand(text, true);
     }
 
-    public void sendCommand(String text, boolean verbose)
+    public void sendCommand(final String text, final boolean verbose)
     {
         try
         {
@@ -169,7 +168,6 @@ public class BTC_ConnectionManager
 
                     try (final BufferedReader reader = new BufferedReader(new InputStreamReader(telnetClient.getInputStream())))
                     {
-
                         int read = 0;
                         while (read != -1)
                         {
@@ -198,7 +196,7 @@ public class BTC_ConnectionManager
                                     {
                                         BTC_ConnectionManager.this.loginName = _loginName;
                                         updateTitle(true);
-                                        sendDelayedCommand("telnet.enhanced", false, 500);
+                                        sendDelayedCommand("telnet.enhanced", false, 100);
                                     }
                                     else
                                     {
@@ -247,7 +245,7 @@ public class BTC_ConnectionManager
         this.connectThread.start();
     }
 
-    public final void updateTitle(boolean isConnected)
+    public final void updateTitle(final boolean isConnected)
     {
         final BTC_MainPanel mainPanel = BukkitTelnetClient.mainPanel;
         if (mainPanel == null)
