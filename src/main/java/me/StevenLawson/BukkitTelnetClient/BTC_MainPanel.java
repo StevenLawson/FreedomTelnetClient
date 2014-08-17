@@ -2,6 +2,7 @@ package me.StevenLawson.BukkitTelnetClient;
 
 import java.awt.EventQueue;
 import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -244,26 +245,35 @@ public class BTC_MainPanel extends javax.swing.JFrame
         }
     }
 
-    public static final class CommandMenuItem extends JMenuItem
+    public static class PlayerListPopupItem extends JMenuItem
     {
-        private final ServerCommand command;
         private final PlayerInfo player;
 
-        public CommandMenuItem(String text, ServerCommand command, PlayerInfo player)
+        public PlayerListPopupItem(String text, PlayerInfo player)
         {
             super(text);
-            this.command = command;
             this.player = player;
-        }
-
-        public ServerCommand getCommand()
-        {
-            return command;
         }
 
         public PlayerInfo getPlayer()
         {
             return player;
+        }
+    }
+
+    public static class PlayerListPopupItem_Command extends PlayerListPopupItem
+    {
+        private final ServerCommand command;
+
+        public PlayerListPopupItem_Command(String text, PlayerInfo player, ServerCommand command)
+        {
+            super(text, player);
+            this.command = command;
+        }
+
+        public ServerCommand getCommand()
+        {
+            return command;
         }
     }
 
@@ -310,30 +320,71 @@ public class BTC_MainPanel extends javax.swing.JFrame
                             public void actionPerformed(ActionEvent actionEvent)
                             {
                                 Object _source = actionEvent.getSource();
-                                if (_source instanceof CommandMenuItem)
+                                if (_source instanceof PlayerListPopupItem_Command)
                                 {
-                                    final CommandMenuItem source = (CommandMenuItem) _source;
+                                    final PlayerListPopupItem_Command source = (PlayerListPopupItem_Command) _source;
+
                                     final PlayerInfo _player = source.getPlayer();
                                     final ServerCommand _command = source.getCommand();
+
                                     final String output = String.format(_command.getCommandFormat(), _player.getName());
 
                                     BTC_MainPanel.this.connectionManager.sendDelayedCommand(output, true, 100);
+                                }
+                                else if (_source instanceof PlayerListPopupItem)
+                                {
+                                    final PlayerListPopupItem source = (PlayerListPopupItem) _source;
+
+                                    final PlayerInfo _player = source.getPlayer();
+
+                                    switch (actionEvent.getActionCommand())
+                                    {
+                                        case "Copy IP":
+                                        {
+                                            copyToClipboard(_player.getIp());
+                                            BTC_MainPanel.this.writeToConsole("Copied IP to clipboard: " + _player.getIp());
+                                            break;
+                                        }
+                                        case "Copy Name":
+                                        {
+                                            copyToClipboard(_player.getName());
+                                            BTC_MainPanel.this.writeToConsole("Copied name to clipboard: " + _player.getName());
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         };
 
                         for (final ServerCommand command : ServerCommand.values())
                         {
-                            final CommandMenuItem item = new CommandMenuItem(command.getCommandName(), command, player);
+                            final PlayerListPopupItem_Command item = new PlayerListPopupItem_Command(command.getCommandName(), player, command);
                             item.addActionListener(popupAction);
                             popup.add(item);
                         }
+
+                        popup.addSeparator();
+
+                        JMenuItem item;
+
+                        item = new PlayerListPopupItem("Copy Name", player);
+                        item.addActionListener(popupAction);
+                        popup.add(item);
+
+                        item = new PlayerListPopupItem("Copy IP", player);
+                        item.addActionListener(popupAction);
+                        popup.add(item);
 
                         popup.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
                     }
                 }
             }
         });
+    }
+
+    public void copyToClipboard(final String myString)
+    {
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(myString), null);
     }
 
     public final void loadServerList()
