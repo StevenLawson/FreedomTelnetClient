@@ -1,6 +1,5 @@
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -13,7 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
+import javax.swing.JCheckBox;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -56,40 +55,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         this.setVisible(true);
     }
 
-    private static final Pattern CHAT_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\<");
-    private static final Pattern SAY_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\[Server:");
-    private static final Pattern ADMINSAY_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\[TotalFreedomMod\\] \\[ADMIN\\] ");
-    private static final Pattern CSAY_MESSAGE = Pattern.compile("^:\\[.+? INFO\\]: \\[CONSOLE\\]<");
-
-    private static final Pattern WORLD_EDIT = Pattern.compile("^:\\[.+? INFO\\]: WorldEdit: ");
-
-    private static final Pattern PREPROCESS_COMMAND = Pattern.compile("^:\\[.+? INFO\\]: \\[PREPROCESS_COMMAND\\] ");
-    private static final Color DARK_GREEN = new Color(86, 130, 3);
-
-    private static final Pattern ISSUED_SERVER_COMMAND = Pattern.compile("^:\\[.+? INFO\\]: .+? issued server command: ");
-    private static final Pattern PLAYER_COMMAND = Pattern.compile("^:\\[.+? INFO\\]: \\[PLAYER_COMMAND\\] ");
-
-    public final boolean skipLine(String line)
-    {
-        if (this.chkShowChatOnly.isSelected())
-        {
-            if (!CHAT_MESSAGE.matcher(line).find() && !SAY_MESSAGE.matcher(line).find() && !ADMINSAY_MESSAGE.matcher(line).find() && !CSAY_MESSAGE.matcher(line).find())
-            {
-                return true;
-            }
-        }
-        else if (this.chkIgnoreServerCommands.isSelected() && ISSUED_SERVER_COMMAND.matcher(line).find())
-        {
-            return true;
-        }
-        else if (this.chkIgnorePlayerCommands.isSelected() && PLAYER_COMMAND.matcher(line).find())
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     public final void updateTextPane(final String text)
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -99,26 +64,12 @@ public class BTC_MainPanel extends javax.swing.JFrame
             {
                 final StyledDocument styledDocument = mainOutput.getStyledDocument();
 
-                Color color = Color.BLACK;
-                if (CHAT_MESSAGE.matcher(text).find() || SAY_MESSAGE.matcher(text).find() || ADMINSAY_MESSAGE.matcher(text).find() || CSAY_MESSAGE.matcher(text).find())
-                {
-                    color = Color.BLUE;
-                }
-                else if (WORLD_EDIT.matcher(text).find())
-                {
-                    color = Color.RED;
-                }
-                else if (PREPROCESS_COMMAND.matcher(text).find())
-                {
-                    color = DARK_GREEN;
-                }
-
                 try
                 {
                     styledDocument.insertString(
                             styledDocument.getLength(),
                             text,
-                            StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, color)
+                            StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, BTC_FormatHandler.getColor(text))
                     );
                 }
                 catch (BadLocationException ex)
@@ -167,6 +118,26 @@ public class BTC_MainPanel extends javax.swing.JFrame
         {
             BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
         }
+    }
+
+    public JCheckBox getChkAutoScroll()
+    {
+        return chkAutoScroll;
+    }
+
+    public JCheckBox getChkIgnorePlayerCommands()
+    {
+        return chkIgnorePlayerCommands;
+    }
+
+    public JCheckBox getChkIgnoreServerCommands()
+    {
+        return chkIgnoreServerCommands;
+    }
+
+    public JCheckBox getChkShowChatOnly()
+    {
+        return chkShowChatOnly;
     }
 
     public final void saveServersAndTriggerConnect()

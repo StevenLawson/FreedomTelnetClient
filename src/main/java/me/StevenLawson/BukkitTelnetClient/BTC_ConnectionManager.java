@@ -1,8 +1,10 @@
 package me.StevenLawson.BukkitTelnetClient;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
@@ -94,11 +96,14 @@ public class BTC_ConnectionManager
         System.out.println("\nDisconnected.");
     }
 
+    private final ByteArrayOutputStream consoleBuffer = new ByteArrayOutputStream();
+    private final PrintStream consoleStream = new PrintStream(consoleBuffer);
+
     public void sendCommand(String text)
     {
         try
         {
-            System.out.println(text);
+            consoleStream.format("%s\r\n", text);
 
             this.telnetClient.getOutputStream().write((text + "\n").getBytes());
             this.telnetClient.getOutputStream().flush();
@@ -132,14 +137,43 @@ public class BTC_ConnectionManager
                     btc.getTxtCommand().setEnabled(true);
                     btc.getTxtCommand().requestFocusInWindow();
 
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(telnetClient.getInputStream())))
+                    try (final BufferedReader reader = new BufferedReader(new InputStreamReader(telnetClient.getInputStream())))
                     {
-                        String line;
-                        while ((line = reader.readLine()) != null)
+
+                        int read = 0;
+                        while (read != -1)
                         {
-                            if (!btc.skipLine(line))
+                            boolean block = true;
+
+                            while (block || reader.ready())
                             {
-                                System.out.println(line);
+                                block = false;
+
+                                read = reader.read();
+                                if (read != -1)
+                                {
+                                    consoleBuffer.write(read);
+                                }
+
+                                if (read == '\n')
+                                {
+                                    final String line = consoleBuffer.toString();
+                                    if (!BTC_FormatHandler.skipLine(line))
+                                    {
+                                        System.out.print(line);
+                                    }
+                                    consoleBuffer.reset();
+                                }
+                            }
+
+                            if (consoleBuffer.size() > 0)
+                            {
+                                final String line = consoleBuffer.toString();
+                                if (line.endsWith("Username: ") || line.endsWith("Password: "))
+                                {
+                                    System.out.print(consoleBuffer.toString());
+                                    consoleBuffer.reset();
+                                }
                             }
                         }
                     }

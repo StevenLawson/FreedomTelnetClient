@@ -10,7 +10,7 @@ import org.apache.commons.io.output.TeeOutputStream;
 
 public class BukkitTelnetClient
 {
-    public static final String VERSION_STRING = "v2.01_b1";
+    public static final String VERSION_STRING = "v2.0.3";
 
     public static final Logger LOGGER = Logger.getLogger(BukkitTelnetClient.class.getName());
     public static final ByteArrayOutputStream CONSOLE = new ByteArrayOutputStream();
