@@ -154,26 +154,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         }
     }
 
-    public JCheckBox getChkAutoScroll()
-    {
-        return chkAutoScroll;
-    }
-
-    public JCheckBox getChkIgnorePlayerCommands()
-    {
-        return chkIgnorePlayerCommands;
-    }
-
-    public JCheckBox getChkIgnoreServerCommands()
-    {
-        return chkIgnoreServerCommands;
-    }
-
-    public JCheckBox getChkShowChatOnly()
-    {
-        return chkShowChatOnly;
-    }
-
     public final void saveServersAndTriggerConnect()
     {
         String selected_server = (String) txtServer.getSelectedItem();
@@ -381,7 +361,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 return canEdit [columnIndex];
             }
         });
-        tblPlayers.setColumnSelectionAllowed(true);
+        tblPlayers.setRowSelectionAllowed(true);
+        tblPlayers.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(tblPlayers);
         tblPlayers.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
@@ -571,5 +552,30 @@ public class BTC_MainPanel extends javax.swing.JFrame
     public javax.swing.JComboBox getTxtServer()
     {
         return txtServer;
+    }
+
+    public JCheckBox getChkAutoScroll()
+    {
+        return chkAutoScroll;
+    }
+
+    public JCheckBox getChkIgnorePlayerCommands()
+    {
+        return chkIgnorePlayerCommands;
+    }
+
+    public JCheckBox getChkIgnoreServerCommands()
+    {
+        return chkIgnoreServerCommands;
+    }
+
+    public JCheckBox getChkShowChatOnly()
+    {
+        return chkShowChatOnly;
+    }
+
+    public BTC_ConnectionManager getConnectionManager()
+    {
+        return connectionManager;
     }
 }

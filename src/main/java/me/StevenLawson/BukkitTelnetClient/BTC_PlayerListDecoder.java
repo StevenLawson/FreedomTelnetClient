@@ -12,13 +12,25 @@ import org.json.JSONObject;
 public class BTC_PlayerListDecoder
 {
     private static final Pattern PLAYER_LIST_MESSAGE = Pattern.compile(":\\[.+@BukkitTelnet\\]\\$ playerList~(.+)");
+    private static final Pattern LOGIN_MESSAGE = Pattern.compile("\\[.+?@BukkitTelnet\\]\\$ Logged in as (.+)\\.");
 
     private BTC_PlayerListDecoder()
     {
         throw new AssertionError();
     }
 
-    public static final Map<String, PlayerInfo> decodePlayerListMessage(String message)
+    public static final String checkForLoginMessage(String message)
+    {
+        final Matcher matcher = LOGIN_MESSAGE.matcher(message);
+        if (matcher.find())
+        {
+            return matcher.group(1);
+        }
+
+        return null;
+    }
+
+    public static final Map<String, PlayerInfo> checkForPlayerListMessage(String message)
     {
         final Matcher matcher = PLAYER_LIST_MESSAGE.matcher(message);
         if (matcher.find())

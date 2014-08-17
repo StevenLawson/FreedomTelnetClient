@@ -73,6 +73,7 @@ public class BukkitTelnetClient
             public void run()
             {
                 mainPanel = new BTC_MainPanel();
+                mainPanel.getConnectionManager().updateTitle(false);
             }
         });
     }

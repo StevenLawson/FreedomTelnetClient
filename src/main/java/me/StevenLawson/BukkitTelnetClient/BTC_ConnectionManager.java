@@ -1,5 +1,7 @@
 package me.StevenLawson.BukkitTelnetClient;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.logging.Level;
+import javax.swing.Timer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 
@@ -17,6 +20,7 @@ public class BTC_ConnectionManager
     private String hostname;
     private int port;
     private boolean canDoDisconnect = false;
+    private String loginName;
 
     public BTC_ConnectionManager()
     {
@@ -31,12 +35,12 @@ public class BTC_ConnectionManager
         btc.getTxtServer().setEnabled(false);
         btc.getBtnDisconnect().setEnabled(true);
 
-        btc.setTitle("BukkitTelnetClient - " + BukkitTelnetClient.VERSION_STRING + " - " + hostname + ":" + port);
-
         System.out.println("Connecting to " + hostname + ":" + port + "...");
 
         this.hostname = hostname;
         this.port = port;
+        this.loginName = null;
+        updateTitle(true);
 
         startConnectThread();
     }
@@ -92,7 +96,9 @@ public class BTC_ConnectionManager
         btc.getBtnSend().setEnabled(false);
         btc.getTxtCommand().setEnabled(false);
 
-        btc.setTitle("BukkitTelnetClient - " + BukkitTelnetClient.VERSION_STRING + " - Disconnected");
+        loginName = null;
+
+        updateTitle(false);
 
         System.out.println("\nDisconnected.");
     }
@@ -102,9 +108,17 @@ public class BTC_ConnectionManager
 
     public void sendCommand(String text)
     {
+        sendCommand(text, true);
+    }
+
+    public void sendCommand(String text, boolean verbose)
+    {
         try
         {
-            consoleStream.format("%s\r\n", text);
+            if (verbose)
+            {
+                consoleStream.format("%s\r\n", text);
+            }
 
             this.telnetClient.getOutputStream().write((text + "\n").getBytes());
             this.telnetClient.getOutputStream().flush();
@@ -113,6 +127,21 @@ public class BTC_ConnectionManager
         {
             BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void sendDelayedCommand(final String text, final boolean verbose, final int delay)
+    {
+        final Timer timer = new Timer(delay, new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                sendCommand(text, verbose);
+            }
+        });
+
+        timer.setRepeats(false);
+        timer.start();
     }
 
     private void startConnectThread()
@@ -160,17 +189,30 @@ public class BTC_ConnectionManager
                                 {
                                     final String line = consoleBuffer.toString();
 
-                                    final Map<String, BTC_PlayerListDecoder.PlayerInfo> playerList = BTC_PlayerListDecoder.decodePlayerListMessage(line);
-
-                                    if (playerList != null)
+                                    String _loginName = null;
+                                    if (BTC_ConnectionManager.this.loginName == null)
                                     {
-                                        btc.updatePlayerList(playerList);
+                                        _loginName = BTC_PlayerListDecoder.checkForLoginMessage(line);
+                                    }
+                                    if (_loginName != null)
+                                    {
+                                        BTC_ConnectionManager.this.loginName = _loginName;
+                                        updateTitle(true);
+                                        sendDelayedCommand("telnet.enhanced", false, 500);
                                     }
                                     else
                                     {
-                                        if (!BTC_FormatHandler.skipLine(line))
+                                        final Map<String, BTC_PlayerListDecoder.PlayerInfo> playerList = BTC_PlayerListDecoder.checkForPlayerListMessage(line);
+                                        if (playerList != null)
                                         {
-                                            System.out.print(line);
+                                            btc.updatePlayerList(playerList);
+                                        }
+                                        else
+                                        {
+                                            if (!BTC_FormatHandler.skipLine(line))
+                                            {
+                                                System.out.print(line);
+                                            }
                                         }
                                     }
 
@@ -203,5 +245,34 @@ public class BTC_ConnectionManager
             }
         });
         this.connectThread.start();
+    }
+
+    public final void updateTitle(boolean isConnected)
+    {
+        final BTC_MainPanel mainPanel = BukkitTelnetClient.mainPanel;
+        if (mainPanel == null)
+        {
+            return;
+        }
+
+        String title;
+
+        if (isConnected)
+        {
+            if (loginName == null)
+            {
+                title = String.format("BukkitTelnetClient - %s - %s:%d", BukkitTelnetClient.VERSION_STRING, hostname, port);
+            }
+            else
+            {
+                title = String.format("BukkitTelnetClient - %s - %s@%s:%d", BukkitTelnetClient.VERSION_STRING, loginName, hostname, port);
+            }
+        }
+        else
+        {
+            title = String.format("BukkitTelnetClient - %s - Disconnected", BukkitTelnetClient.VERSION_STRING);
+        }
+
+        mainPanel.setTitle(title);
     }
 }
