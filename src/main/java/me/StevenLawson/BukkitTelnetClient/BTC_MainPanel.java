@@ -18,7 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -146,7 +145,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         final String data = CONSOLE.toString();
         CONSOLE.reset();
 
-        final String[] lines = data.split("\\n");
+        final String[] lines = data.split("\\r?\\n");
         for (String line : lines)
         {
             if (!line.isEmpty())
@@ -158,7 +157,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     public final void writeToConsole(String line)
     {
-        CONSOLE_STREAM.append(line);
+        CONSOLE_STREAM.append(line + '\n');
         updateConsole();
     }
 
@@ -273,7 +272,13 @@ public class BTC_MainPanel extends javax.swing.JFrame
         SMITE("Smite", "smite %s"),
         OP("Op", "op %s"),
         DEOP("Deop", "deop %s"),
-        GTFO("GTFO", "gtfo %s");
+        GTFO("GTFO", "gtfo %s"),
+        FREEZE("Toggle Freeze", "fr %s"),
+        CAGE("Cage", "cage %s"),
+        UNCAGE("Uncage", "cage %s off"),
+        DOOM("Doom", "doom %s"),
+        CREATIVE("Creative", "creative %s"),
+        SURVIVAL("Survival", "survival %s");
 
         private final String commandName;
         private final String commandFormat;
@@ -471,7 +476,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         if (selectedServer == null || selectedServer.isEmpty())
         {
-            writeToConsole("Invalid server address.\n");
+            writeToConsole("Invalid server address.");
             return;
         }
 
