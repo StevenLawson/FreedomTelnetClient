@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <playerCommands>
+        <playerCommand>
+            <name>Ban</name>
+            <format>glist ban %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Toggle Mute</name>
+            <format>mute %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Kick</name>
+            <format>tempban %s 10s Kicked</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Tempban 5m</name>
+            <format>tempban %s 5m</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Smite</name>
+            <format>smite %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Op</name>
+            <format>op %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Deop</name>
+            <format>deop %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>GTFO</name>
+            <format>gtfo %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Toggle Freeze</name>
+            <format>fr %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Cage</name>
+            <format>cage %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Uncage</name>
+            <format>cage %s off</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Doom</name>
+            <format>doom %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Creative</name>
+            <format>creative %s</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Survival</name>
+            <format>survival %s</format>
+        </playerCommand>
+    </playerCommands>
+    <servers/>
+</configuration>

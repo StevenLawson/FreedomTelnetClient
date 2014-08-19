@@ -9,9 +9,12 @@ public class BukkitTelnetClient
     public static final String VERSION_STRING = "v2.0.3";
     public static final Logger LOGGER = Logger.getLogger(BukkitTelnetClient.class.getName());
     public static BTC_MainPanel mainPanel = null;
+    public static BTC_ConfigLoader config = new BTC_ConfigLoader();
 
     public static void main(String args[])
     {
+        config.load(true);
+
         findAndSetLookAndFeel("Windows");
 
         java.awt.EventQueue.invokeLater(new Runnable()
