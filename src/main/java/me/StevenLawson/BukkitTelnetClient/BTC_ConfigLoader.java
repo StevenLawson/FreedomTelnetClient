@@ -2,21 +2,22 @@ package me.StevenLawson.BukkitTelnetClient;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 public class BTC_ConfigLoader
 {
     private static final String SETTINGS_FILE = "settings.xml";
 
     private final List<PlayerCommandEntry> playerCommands = new ArrayList<>();
-    private final List<ServerEntry> servers = new ArrayList<>();
+    private final Set<ServerEntry> servers = new HashSet<>();
 
     public BTC_ConfigLoader()
     {
@@ -43,10 +44,6 @@ public class BTC_ConfigLoader
 
             final List<ServerEntry> oldServers = importOldConfig();
             this.servers.addAll(oldServers);
-
-            final HashSet<ServerEntry> uniqueServers = new HashSet<>(this.servers);
-            this.servers.clear();
-            this.servers.addAll(uniqueServers);
 
             generateXML(settings);
 
@@ -77,10 +74,6 @@ public class BTC_ConfigLoader
 
     public boolean save()
     {
-        final HashSet<ServerEntry> uniqueServers = new HashSet<>(this.servers);
-        this.servers.clear();
-        this.servers.addAll(uniqueServers);
-
         return generateXML(new File(SETTINGS_FILE));
     }
 
@@ -89,9 +82,9 @@ public class BTC_ConfigLoader
         return this.playerCommands;
     }
 
-    public List<ServerEntry> getServers()
+    public Set<ServerEntry> getServers()
     {
-        return this.servers;
+        return servers;
     }
 
     private boolean generateXML(final File file)
@@ -114,9 +107,9 @@ public class BTC_ConfigLoader
 
             return true;
         }
-        catch (Exception ex)
+        catch (IllegalArgumentException | ParserConfigurationException | TransformerException | DOMException ex)
         {
-            ex.printStackTrace();
+            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
         }
 
         return false;
@@ -143,10 +136,11 @@ public class BTC_ConfigLoader
                 hadErrors = true;
             }
         }
-        catch (Exception ex)
+        catch (IOException | ParserConfigurationException | SAXException ex)
         {
-            ex.printStackTrace();
             hadErrors = true;
+
+            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
         }
 
         return hadErrors;
@@ -165,7 +159,7 @@ public class BTC_ConfigLoader
             }
             catch (IOException ex)
             {
-                ex.printStackTrace();
+                BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
             }
         }
 
@@ -187,7 +181,7 @@ public class BTC_ConfigLoader
                     while ((line = in.readLine()) != null)
                     {
                         line = line.trim();
-                        oldServers.add(new ServerEntry("legacy", line));
+                        oldServers.add(new ServerEntry("legacy", line, false));
                     }
                 }
 
@@ -196,192 +190,9 @@ public class BTC_ConfigLoader
         }
         catch (IOException ex)
         {
-            ex.printStackTrace();
+            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
         }
 
         return oldServers;
-    }
-
-    public static class PlayerCommandEntry
-    {
-        private final String name;
-        private final String format;
-
-        public PlayerCommandEntry(String name, String format)
-        {
-            this.name = name;
-            this.format = format;
-        }
-
-        public String getFormat()
-        {
-            return format;
-        }
-
-        public String getName()
-        {
-            return name;
-        }
-
-        public static Element listToXML(final List<PlayerCommandEntry> playerCommands, final Document doc)
-        {
-            final Element plcElement = doc.createElement("playerCommands");
-
-            for (final PlayerCommandEntry command : playerCommands)
-            {
-                final Element commandElement = doc.createElement("playerCommand");
-                plcElement.appendChild(commandElement);
-
-                final Element commandName = doc.createElement("name");
-                commandName.appendChild(doc.createTextNode(command.getName()));
-                commandElement.appendChild(commandName);
-
-                final Element commandFormat = doc.createElement("format");
-                commandFormat.appendChild(doc.createTextNode(command.getFormat()));
-                commandElement.appendChild(commandFormat);
-            }
-
-            return plcElement;
-        }
-
-        public static boolean xmlToList(final List<PlayerCommandEntry> playerCommands, final Document doc)
-        {
-            NodeList playerCommandNodes = doc.getDocumentElement().getElementsByTagName("playerCommands");
-            if (playerCommandNodes.getLength() < 1)
-            {
-                return false;
-            }
-            playerCommandNodes = playerCommandNodes.item(0).getChildNodes();
-
-            playerCommands.clear();
-
-            for (int i = 0; i < playerCommandNodes.getLength(); i++)
-            {
-                final Node node = playerCommandNodes.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE)
-                {
-                    final Element element = (Element) node;
-
-                    final PlayerCommandEntry command = new PlayerCommandEntry(
-                            element.getElementsByTagName("name").item(0).getTextContent(),
-                            element.getElementsByTagName("format").item(0).getTextContent()
-                    );
-
-                    playerCommands.add(command);
-                }
-            }
-
-            return true;
-        }
-    }
-
-    public static class ServerEntry
-    {
-        private final String name;
-        private final String address;
-
-        public ServerEntry(final String name, final String address)
-        {
-            this.name = name;
-            this.address = address;
-        }
-
-        public String getName()
-        {
-            return name;
-        }
-
-        public String getAddress()
-        {
-            return address;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int hash = 7;
-            hash = 67 * hash + Objects.hashCode(this.name);
-            hash = 67 * hash + Objects.hashCode(this.address);
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-
-            if (getClass() != obj.getClass())
-            {
-                return false;
-            }
-
-            final ServerEntry other = (ServerEntry) obj;
-
-            if (!Objects.equals(this.name, other.name))
-            {
-                return false;
-            }
-
-            if (!Objects.equals(this.address, other.address))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public static Element listToXML(final List<ServerEntry> servers, final Document doc)
-        {
-            final Element serversElement = doc.createElement("servers");
-
-            for (final ServerEntry command : servers)
-            {
-                final Element commandElement = doc.createElement("server");
-                serversElement.appendChild(commandElement);
-
-                final Element serverName = doc.createElement("name");
-                serverName.appendChild(doc.createTextNode(command.getName()));
-                commandElement.appendChild(serverName);
-
-                final Element serverAddress = doc.createElement("address");
-                serverAddress.appendChild(doc.createTextNode(command.getAddress()));
-                commandElement.appendChild(serverAddress);
-            }
-
-            return serversElement;
-        }
-
-        public static boolean xmlToList(final List<ServerEntry> servers, final Document doc)
-        {
-            NodeList serverNodes = doc.getDocumentElement().getElementsByTagName("servers");
-            if (serverNodes.getLength() < 1)
-            {
-                return false;
-            }
-            serverNodes = serverNodes.item(0).getChildNodes();
-
-            servers.clear();
-
-            for (int i = 0; i < serverNodes.getLength(); i++)
-            {
-                final Node node = serverNodes.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE)
-                {
-                    final Element element = (Element) node;
-
-                    final ServerEntry server = new ServerEntry(
-                            element.getElementsByTagName("name").item(0).getTextContent(),
-                            element.getElementsByTagName("address").item(0).getTextContent()
-                    );
-
-                    servers.add(server);
-                }
-            }
-
-            return true;
-        }
     }
 }

@@ -1,41 +1,16 @@
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.awt.EventQueue;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.awt.event.*;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.logging.Level;
-import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollBar;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import java.util.*;
+import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.*;
 
 public class BTC_MainPanel extends javax.swing.JFrame
 {
@@ -442,28 +417,55 @@ public class BTC_MainPanel extends javax.swing.JFrame
     public final void loadServerList()
     {
         txtServer.removeAllItems();
-
-        for (BTC_ConfigLoader.ServerEntry serverEntry : BukkitTelnetClient.config.getServers())
+        for (final ServerEntry serverEntry : BukkitTelnetClient.config.getServers())
         {
-            txtServer.addItem(serverEntry.getAddress());
+            txtServer.addItem(serverEntry);
+            if (serverEntry.isLastUsed())
+            {
+                txtServer.setSelectedItem(serverEntry);
+            }
         }
     }
 
     public final void saveServersAndTriggerConnect()
     {
-        final String selectedServer = (String) txtServer.getSelectedItem();
+        final Object selectedItem = txtServer.getSelectedItem();
 
-        if (selectedServer == null || selectedServer.isEmpty())
+        ServerEntry entry;
+        if (selectedItem instanceof ServerEntry)
         {
-            writeToConsole("Invalid server address.");
-            return;
+            entry = (ServerEntry) selectedItem;
+        }
+        else
+        {
+            String serverName = JOptionPane.showInputDialog(this, "Enter server name:", "Server Name", JOptionPane.PLAIN_MESSAGE).trim();
+
+            if (serverName.isEmpty())
+            {
+                serverName = "Unnamed";
+            }
+
+            entry = new ServerEntry(serverName, selectedItem.toString());
+
+            BukkitTelnetClient.config.getServers().add(entry);
         }
 
-        BukkitTelnetClient.config.getServers().add(new BTC_ConfigLoader.ServerEntry("legacy", selectedServer));
+        for (final ServerEntry existingEntry : BukkitTelnetClient.config.getServers())
+        {
+            if (entry.equals(existingEntry))
+            {
+                entry = existingEntry;
+            }
+            existingEntry.setLastUsed(false);
+        }
+
+        entry.setLastUsed(true);
 
         BukkitTelnetClient.config.save();
 
-        connectionManager.triggerConnect(selectedServer);
+        loadServerList();
+
+        connectionManager.triggerConnect(entry.getAddress());
     }
 
     @SuppressWarnings("unchecked")
@@ -477,7 +479,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         mainOutput = new javax.swing.JTextPane();
         btnDisconnect = new javax.swing.JButton();
         btnSend = new javax.swing.JButton();
-        txtServer = new javax.swing.JComboBox();
+        txtServer = new javax.swing.JComboBox<ServerEntry>();
         chkAutoScroll = new javax.swing.JCheckBox();
         txtCommand = new javax.swing.JTextField();
         btnConnect = new javax.swing.JButton();
@@ -525,13 +527,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         chkAutoScroll.setSelected(true);
         chkAutoScroll.setText("AutoScroll");
-        chkAutoScroll.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                chkAutoScrollActionPerformed(evt);
-            }
-        });
 
         txtCommand.setEnabled(false);
         txtCommand.addKeyListener(new java.awt.event.KeyAdapter()
@@ -736,11 +731,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         }
     }//GEN-LAST:event_txtCommandKeyPressed
 
-    private void chkAutoScrollActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_chkAutoScrollActionPerformed
-    {//GEN-HEADEREND:event_chkAutoScrollActionPerformed
-//        updateTextPane("");
-    }//GEN-LAST:event_chkAutoScrollActionPerformed
-
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnConnectActionPerformed
     {//GEN-HEADEREND:event_btnConnectActionPerformed
         if (!btnConnect.isEnabled())
@@ -796,7 +786,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JSplitPane splitPane;
     private javax.swing.JTable tblPlayers;
     private javax.swing.JTextField txtCommand;
-    private javax.swing.JComboBox txtServer;
+    private javax.swing.JComboBox<ServerEntry> txtServer;
     // End of variables declaration//GEN-END:variables
 
     public javax.swing.JButton getBtnConnect()
@@ -824,7 +814,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         return txtCommand;
     }
 
-    public javax.swing.JComboBox getTxtServer()
+    public javax.swing.JComboBox<ServerEntry> getTxtServer()
     {
         return txtServer;
     }

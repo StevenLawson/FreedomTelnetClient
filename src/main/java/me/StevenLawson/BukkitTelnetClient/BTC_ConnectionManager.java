@@ -2,9 +2,7 @@ package me.StevenLawson.BukkitTelnetClient;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.swing.Timer;
