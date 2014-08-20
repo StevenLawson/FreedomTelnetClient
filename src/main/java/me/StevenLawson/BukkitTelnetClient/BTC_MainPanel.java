@@ -39,13 +39,10 @@ import javax.swing.text.StyledDocument;
 
 public class BTC_MainPanel extends javax.swing.JFrame
 {
-    private static final String SERVERS_FILE_NAME = "btc_servers.cfg";
-
     public static final ByteArrayOutputStream CONSOLE = new ByteArrayOutputStream();
     public static final PrintStream CONSOLE_STREAM = new PrintStream(CONSOLE);
 
     private final BTC_ConnectionManager connectionManager = new BTC_ConnectionManager();
-    private final LinkedList<String> serverList = new LinkedList<>();
 
     public BTC_MainPanel()
     {
@@ -444,29 +441,11 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     public final void loadServerList()
     {
-        try
-        {
-            serverList.clear();
-            txtServer.removeAllItems();
+        txtServer.removeAllItems();
 
-            final File file = new File(SERVERS_FILE_NAME);
-            if (file.exists())
-            {
-                try (final BufferedReader in = new BufferedReader(new FileReader(file)))
-                {
-                    String line;
-                    while ((line = in.readLine()) != null)
-                    {
-                        line = line.trim();
-                        serverList.add(line);
-                        txtServer.addItem(line);
-                    }
-                }
-            }
-        }
-        catch (IOException ex)
+        for (BTC_ConfigLoader.ServerEntry serverEntry : BukkitTelnetClient.config.getServers())
         {
-            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+            txtServer.addItem(serverEntry.getAddress());
         }
     }
 
@@ -480,28 +459,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
             return;
         }
 
-        try
-        {
-            if (serverList.contains(selectedServer))
-            {
-                serverList.remove(selectedServer);
-            }
+        BukkitTelnetClient.config.getServers().add(new BTC_ConfigLoader.ServerEntry("legacy", selectedServer));
 
-            serverList.addFirst(selectedServer);
-            try (final BufferedWriter out = new BufferedWriter(new FileWriter(new File(SERVERS_FILE_NAME))))
-            {
-                for (final String server : serverList)
-                {
-                    out.write(server + '\n');
-                }
-            }
-        }
-        catch (IOException ex)
-        {
-            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
-        }
-
-        loadServerList();
+        BukkitTelnetClient.config.save();
 
         connectionManager.triggerConnect(selectedServer);
     }

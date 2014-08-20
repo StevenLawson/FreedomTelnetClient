@@ -77,6 +77,10 @@ public class BTC_ConfigLoader
 
     public boolean save()
     {
+        final HashSet<ServerEntry> uniqueServers = new HashSet<>(this.servers);
+        this.servers.clear();
+        this.servers.addAll(uniqueServers);
+
         return generateXML(new File(SETTINGS_FILE));
     }
 
@@ -183,7 +187,7 @@ public class BTC_ConfigLoader
                     while ((line = in.readLine()) != null)
                     {
                         line = line.trim();
-                        oldServers.add(new ServerEntry("imported", line));
+                        oldServers.add(new ServerEntry("legacy", line));
                     }
                 }
 
