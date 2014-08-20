@@ -1,13 +1,9 @@
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
 
 public class BTC_PlayerListDecoder
 {

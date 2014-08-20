@@ -1,9 +1,6 @@
 package me.StevenLawson.BukkitTelnetClient;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
-public final class PlayerInfo
+public class PlayerInfo
 {
     private final String name;
     private final String ip;
@@ -29,37 +26,6 @@ public final class PlayerInfo
     public String getDisplayName()
     {
         return displayName;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return new HashCodeBuilder(17, 31).
-                append(name).
-                append(ip).
-                append(displayName).
-                toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (!(obj instanceof PlayerInfo))
-        {
-            return false;
-        }
-
-        if (obj == this)
-        {
-            return true;
-        }
-
-        PlayerInfo rhs = (PlayerInfo) obj;
-        return new EqualsBuilder().
-                append(name, rhs.name).
-                append(ip, rhs.ip).
-                append(displayName, rhs.displayName).
-                isEquals();
     }
 
     @Override

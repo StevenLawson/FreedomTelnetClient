@@ -235,43 +235,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         });
     }
 
-    public static enum ServerCommand
-    {
-        BAN("Ban", "glist ban %s"),
-        MUTE("Toggle Mute", "mute %s"),
-        KICK("Kick", "tempban %s 10s Kicked"),
-        TEMPBAN("Tempban 5m", "tempban %s 5m"),
-        SMITE("Smite", "smite %s"),
-        OP("Op", "op %s"),
-        DEOP("Deop", "deop %s"),
-        GTFO("GTFO", "gtfo %s"),
-        FREEZE("Toggle Freeze", "fr %s"),
-        CAGE("Cage", "cage %s"),
-        UNCAGE("Uncage", "cage %s off"),
-        DOOM("Doom", "doom %s"),
-        CREATIVE("Creative", "creative %s"),
-        SURVIVAL("Survival", "survival %s");
-
-        private final String commandName;
-        private final String commandFormat;
-
-        private ServerCommand(String commandName, String commandFormat)
-        {
-            this.commandName = commandName;
-            this.commandFormat = commandFormat;
-        }
-
-        public String getCommandName()
-        {
-            return commandName;
-        }
-
-        public String getCommandFormat()
-        {
-            return commandFormat;
-        }
-    }
-
     public static class PlayerListPopupItem extends JMenuItem
     {
         private final PlayerInfo player;
@@ -290,15 +253,15 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     public static class PlayerListPopupItem_Command extends PlayerListPopupItem
     {
-        private final ServerCommand command;
+        private final PlayerCommandEntry command;
 
-        public PlayerListPopupItem_Command(String text, PlayerInfo player, ServerCommand command)
+        public PlayerListPopupItem_Command(String text, PlayerInfo player, PlayerCommandEntry command)
         {
             super(text, player);
             this.command = command;
         }
 
-        public ServerCommand getCommand()
+        public PlayerCommandEntry getCommand()
         {
             return command;
         }
@@ -352,9 +315,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
                                     final PlayerListPopupItem_Command source = (PlayerListPopupItem_Command) _source;
 
                                     final PlayerInfo _player = source.getPlayer();
-                                    final ServerCommand _command = source.getCommand();
+                                    final PlayerCommandEntry _command = source.getCommand();
 
-                                    final String output = String.format(_command.getCommandFormat(), _player.getName());
+                                    final String output = String.format(_command.getFormat(), _player.getName());
 
                                     BTC_MainPanel.this.connectionManager.sendDelayedCommand(output, true, 100);
                                 }
@@ -383,9 +346,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
                             }
                         };
 
-                        for (final ServerCommand command : ServerCommand.values())
+                        for (final PlayerCommandEntry command : BukkitTelnetClient.config.getCommands())
                         {
-                            final PlayerListPopupItem_Command item = new PlayerListPopupItem_Command(command.getCommandName(), player, command);
+                            final PlayerListPopupItem_Command item = new PlayerListPopupItem_Command(command.getName(), player, command);
                             item.addActionListener(popupAction);
                             popup.add(item);
                         }
