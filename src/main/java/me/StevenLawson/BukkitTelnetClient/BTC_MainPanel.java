@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.*;
+import org.apache.commons.lang3.StringUtils;
 
 public class BTC_MainPanel extends javax.swing.JFrame
 {
@@ -401,14 +402,25 @@ public class BTC_MainPanel extends javax.swing.JFrame
         }
         else
         {
-            String serverName = JOptionPane.showInputDialog(this, "Enter server name:", "Server Name", JOptionPane.PLAIN_MESSAGE).trim();
+            final String serverAddress = StringUtils.trimToNull(selectedItem.toString());
+            if (serverAddress == null)
+            {
+                return;
+            }
 
+            String serverName = JOptionPane.showInputDialog(this, "Enter server name:", "Server Name", JOptionPane.PLAIN_MESSAGE);
+            if (serverName == null)
+            {
+                return;
+            }
+
+            serverName = StringUtils.trimToEmpty(serverName);
             if (serverName.isEmpty())
             {
                 serverName = "Unnamed";
             }
 
-            entry = new ServerEntry(serverName, selectedItem.toString());
+            entry = new ServerEntry(serverName, serverAddress);
 
             BukkitTelnetClient.config.getServers().add(entry);
         }
