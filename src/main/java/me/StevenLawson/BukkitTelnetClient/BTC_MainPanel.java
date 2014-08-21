@@ -468,6 +468,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         chkIgnorePlayerCommands = new javax.swing.JCheckBox();
         chkIgnoreServerCommands = new javax.swing.JCheckBox();
         chkShowChatOnly = new javax.swing.JCheckBox();
+        chkIgnoreErrors = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BukkitTelnetClient");
@@ -645,6 +646,15 @@ public class BTC_MainPanel extends javax.swing.JFrame
             }
         });
 
+        chkIgnoreErrors.setText("Ignore warnings and errors");
+        chkIgnoreErrors.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                chkIgnoreErrorsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -654,8 +664,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(chkIgnorePlayerCommands)
                     .addComponent(chkIgnoreServerCommands)
-                    .addComponent(chkShowChatOnly))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(chkShowChatOnly)
+                    .addComponent(chkIgnoreErrors))
+                .addContainerGap(79, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -666,7 +677,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 .addComponent(chkIgnoreServerCommands, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chkShowChatOnly, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(341, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chkIgnoreErrors, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(318, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Filters", jPanel1);
@@ -741,11 +754,17 @@ public class BTC_MainPanel extends javax.swing.JFrame
         chkIgnoreServerCommands.setEnabled(enable);
     }//GEN-LAST:event_chkShowChatOnlyActionPerformed
 
+    private void chkIgnoreErrorsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_chkIgnoreErrorsActionPerformed
+    {//GEN-HEADEREND:event_chkIgnoreErrorsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_chkIgnoreErrorsActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConnect;
     private javax.swing.JButton btnDisconnect;
     private javax.swing.JButton btnSend;
     private javax.swing.JCheckBox chkAutoScroll;
+    private javax.swing.JCheckBox chkIgnoreErrors;
     private javax.swing.JCheckBox chkIgnorePlayerCommands;
     private javax.swing.JCheckBox chkIgnoreServerCommands;
     private javax.swing.JCheckBox chkShowChatOnly;
@@ -812,5 +831,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
     public JCheckBox getChkShowChatOnly()
     {
         return chkShowChatOnly;
+    }
+
+    public JCheckBox getChkIgnoreErrors()
+    {
+        return chkIgnoreErrors;
     }
 }

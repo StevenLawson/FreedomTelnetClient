@@ -299,8 +299,9 @@
                               <Component id="chkIgnorePlayerCommands" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="chkIgnoreServerCommands" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="chkShowChatOnly" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="chkIgnoreErrors" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="79" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -313,7 +314,9 @@
                           <Component id="chkIgnoreServerCommands" min="-2" pref="23" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="chkShowChatOnly" min="-2" pref="23" max="-2" attributes="0"/>
-                          <EmptySpace pref="341" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="chkIgnoreErrors" min="-2" pref="23" max="-2" attributes="0"/>
+                          <EmptySpace pref="318" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -337,6 +340,14 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkShowChatOnlyActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="chkIgnoreErrors">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Ignore warnings and errors"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkIgnoreErrorsActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
