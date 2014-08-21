@@ -3,8 +3,6 @@ package me.StevenLawson.BukkitTelnetClient;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.net.URL;
 import java.util.*;
 import javax.swing.*;
@@ -12,12 +10,10 @@ import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 public class BTC_MainPanel extends javax.swing.JFrame
 {
-    public static final ByteArrayOutputStream CONSOLE = new ByteArrayOutputStream();
-    public static final PrintStream CONSOLE_STREAM = new PrintStream(CONSOLE);
-
     private final BTC_ConnectionManager connectionManager = new BTC_ConnectionManager();
 
     public BTC_MainPanel()
@@ -57,9 +53,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
         this.setVisible(true);
     }
 
-    public final void updateTextPane(final String line)
+    public final void writeToConsole(final BTC_ConsoleMessage message)
     {
-        if (line.isEmpty())
+        if (message.getMessage().isEmpty())
         {
             return;
         }
@@ -77,8 +73,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 {
                     styledDocument.insertString(
                             styledDocument.getLength(),
-                            line,
-                            StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, BTC_FormatHandler.getColor(line))
+                            message.getMessage() + SystemUtils.LINE_SEPARATOR,
+                            StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, message.getColor())
                     );
                 }
                 catch (BadLocationException ex)
@@ -111,27 +107,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 }
             }
         });
-    }
-
-    public final void updateConsole()
-    {
-        final String data = CONSOLE.toString();
-        CONSOLE.reset();
-
-        final String[] lines = data.split("\\r?\\n");
-        for (String line : lines)
-        {
-            if (!line.isEmpty())
-            {
-                updateTextPane(line + '\n');
-            }
-        }
-    }
-
-    public final void writeToConsole(String line)
-    {
-        CONSOLE_STREAM.append(line + '\n');
-        updateConsole();
     }
 
     public final PlayerInfo getSelectedPlayer()
@@ -333,13 +308,13 @@ public class BTC_MainPanel extends javax.swing.JFrame
                                         case "Copy IP":
                                         {
                                             copyToClipboard(_player.getIp());
-                                            BTC_MainPanel.this.writeToConsole("Copied IP to clipboard: " + _player.getIp());
+                                            BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied IP to clipboard: " + _player.getIp()));
                                             break;
                                         }
                                         case "Copy Name":
                                         {
                                             copyToClipboard(_player.getName());
-                                            BTC_MainPanel.this.writeToConsole("Copied name to clipboard: " + _player.getName());
+                                            BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied name to clipboard: " + _player.getName()));
                                             break;
                                         }
                                     }

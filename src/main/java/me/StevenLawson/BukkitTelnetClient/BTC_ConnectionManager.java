@@ -1,5 +1,6 @@
 package me.StevenLawson.BukkitTelnetClient;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -7,6 +8,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import javax.swing.Timer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 
 public class BTC_ConnectionManager
@@ -31,7 +34,7 @@ public class BTC_ConnectionManager
         btc.getTxtServer().setEnabled(false);
         btc.getBtnDisconnect().setEnabled(true);
 
-        btc.writeToConsole("Connecting to " + hostname + ":" + port + "...");
+        btc.writeToConsole(new BTC_ConsoleMessage("Connecting to " + hostname + ":" + port + "...", Color.RED));
 
         this.hostname = hostname;
         this.port = port;
@@ -96,7 +99,7 @@ public class BTC_ConnectionManager
 
         updateTitle(false);
 
-        btc.writeToConsole("Disconnected.");
+        btc.writeToConsole(new BTC_ConsoleMessage("Disconnected.", Color.RED));
     }
 
     public void sendCommand(final String text)
@@ -110,7 +113,7 @@ public class BTC_ConnectionManager
         {
             if (verbose)
             {
-                BukkitTelnetClient.mainPanel.writeToConsole(":" + text);
+                BukkitTelnetClient.mainPanel.writeToConsole(new BTC_ConsoleMessage(":" + text));
             }
 
             this.telnetClient.getOutputStream().write((text + "\r\n").getBytes());
@@ -165,6 +168,7 @@ public class BTC_ConnectionManager
                         String line;
                         while ((line = reader.readLine()) != null)
                         {
+
                             String _loginName = null;
                             if (BTC_ConnectionManager.this.loginName == null)
                             {
@@ -185,9 +189,10 @@ public class BTC_ConnectionManager
                                 }
                                 else
                                 {
-                                    if (!BTC_FormatHandler.skipLine(line))
+                                    final BTC_TelnetMessage message = new BTC_TelnetMessage(line);
+                                    if (!message.skip())
                                     {
-                                        btc.writeToConsole(line);
+                                        btc.writeToConsole(message);
                                     }
                                 }
                             }
@@ -198,8 +203,7 @@ public class BTC_ConnectionManager
                 }
                 catch (IOException ex)
                 {
-                    ex.printStackTrace(BTC_MainPanel.CONSOLE_STREAM);
-                    btc.updateConsole();
+                    btc.writeToConsole(new BTC_ConsoleMessage(ex.getMessage() + SystemUtils.LINE_SEPARATOR + ExceptionUtils.getStackTrace(ex)));
                 }
 
                 finishDisconnect();
