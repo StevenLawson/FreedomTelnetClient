@@ -9,6 +9,9 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
     private static final Color PURPLE = new Color(128, 0, 128);
     private static final Color DARK_GREEN = new Color(86, 130, 3);
 
+    private static final Pattern ERROR_MESSAGE = Pattern.compile("^:\\[.+? (?:(WARN)|(ERROR))\\]: ");
+    private static final Pattern INFO_MESSAGE = Pattern.compile(PATTERN_PREFIX);
+
     private final BTC_LogMessageType messageType;
 
     public BTC_TelnetMessage(String message)
@@ -22,6 +25,21 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
         return this.messageType;
     }
 
+    public boolean isErrorMessage()
+    {
+        return ERROR_MESSAGE.matcher(this.getMessage()).find();
+    }
+
+    public boolean isInfoMessage()
+    {
+        return INFO_MESSAGE.matcher(this.getMessage()).find();
+    }
+
+    private boolean isType(final BTC_LogMessageType checkType)
+    {
+        return this.messageType == checkType;
+    }
+
     public boolean skip()
     {
         final BTC_MainPanel mainPanel = BukkitTelnetClient.mainPanel;
@@ -30,37 +48,36 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
         {
             return false;
         }
+
         if (mainPanel.getChkShowChatOnly().isSelected())
         {
-            switch (messageType)
+            if (!isType(BTC_LogMessageType.CHAT_MESSAGE)
+                    && !isType(BTC_LogMessageType.CSAY_MESSAGE)
+                    && !isType(BTC_LogMessageType.SAY_MESSAGE)
+                    && !isType(BTC_LogMessageType.ADMINSAY_MESSAGE))
             {
-                case CHAT_MESSAGE:
-                case CSAY_MESSAGE:
-                case SAY_MESSAGE:
-                case ADMINSAY_MESSAGE:
-                    return false;
-                default:
-                    return true;
+                return false;
             }
         }
-        else if (mainPanel.getChkIgnoreServerCommands().isSelected() && this.messageType == BTC_LogMessageType.ISSUED_SERVER_COMMAND)
+
+        if (mainPanel.getChkIgnoreServerCommands().isSelected() && this.messageType == BTC_LogMessageType.ISSUED_SERVER_COMMAND)
         {
             return true;
         }
-        else if (mainPanel.getChkIgnorePlayerCommands().isSelected() && this.messageType == BTC_LogMessageType.PLAYER_COMMAND)
+
+        if (mainPanel.getChkIgnorePlayerCommands().isSelected() && this.messageType == BTC_LogMessageType.PLAYER_COMMAND)
         {
             return true;
         }
-        else if (mainPanel.getChkIgnoreErrors().isSelected())
+
+        if (mainPanel.getChkIgnoreErrors().isSelected())
         {
-            switch (this.messageType)
+            if (!isType(BTC_LogMessageType.CHAT_MESSAGE)
+                    && !isType(BTC_LogMessageType.CSAY_MESSAGE)
+                    && !isType(BTC_LogMessageType.SAY_MESSAGE)
+                    && !isType(BTC_LogMessageType.ADMINSAY_MESSAGE))
             {
-                case ERROR_MESSAGE:
-                case STACK_TRACE:
-                case EXCEPTION_MESSAGE:
-                    return false;
-                default:
-                    return true;
+                return false;
             }
         }
 
@@ -93,11 +110,7 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
         PREPROCESS_COMMAND(PATTERN_PREFIX + "\\[PREPROCESS_COMMAND\\] ", DARK_GREEN),
         //
         ISSUED_SERVER_COMMAND(PATTERN_PREFIX + ".+? issued server command: "),
-        PLAYER_COMMAND(PATTERN_PREFIX + "\\[PLAYER_COMMAND\\] "),
-        //
-        ERROR_MESSAGE("^:\\[.+? (!?(WARN)|(ERROR))\\]: ", Color.LIGHT_GRAY),
-        EXCEPTION_MESSAGE("^[^\\[][^\\s]+: ", Color.LIGHT_GRAY),
-        STACK_TRACE("^\\t", Color.LIGHT_GRAY);
+        PLAYER_COMMAND(PATTERN_PREFIX + "\\[PLAYER_COMMAND\\] ");
 
         private final Pattern messagePattern;
         private final Color color;

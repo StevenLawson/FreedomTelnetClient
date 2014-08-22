@@ -53,18 +53,66 @@ public class BTC_MainPanel extends javax.swing.JFrame
         this.setVisible(true);
     }
 
-    public final void writeToConsole(final BTC_ConsoleMessage message)
+    private final Queue<BTC_TelnetMessage> telnetErrorQueue = new LinkedList<>();
+    private boolean isQueueing = false;
+
+    private void flushTelnetErrorQueue()
+    {
+        BTC_TelnetMessage queuedMessage;
+        while ((queuedMessage = telnetErrorQueue.poll()) != null)
+        {
+            queuedMessage.setColor(Color.GRAY);
+            writeToConsoleImmediately(queuedMessage, true);
+        }
+    }
+
+    public void writeToConsole(final BTC_ConsoleMessage message)
     {
         if (message.getMessage().isEmpty())
         {
             return;
         }
 
+        if (message instanceof BTC_TelnetMessage)
+        {
+            final BTC_TelnetMessage telnetMessage = (BTC_TelnetMessage) message;
+
+            if (telnetMessage.isInfoMessage())
+            {
+                isQueueing = false;
+                flushTelnetErrorQueue();
+            }
+            else if (telnetMessage.isErrorMessage() || isQueueing)
+            {
+                isQueueing = true;
+                telnetErrorQueue.add(telnetMessage);
+            }
+
+            if (!isQueueing)
+            {
+                writeToConsoleImmediately(telnetMessage, false);
+            }
+        }
+        else
+        {
+            isQueueing = false;
+            flushTelnetErrorQueue();
+            writeToConsoleImmediately(message, false);
+        }
+    }
+
+    private void writeToConsoleImmediately(final BTC_ConsoleMessage message, final boolean isTelnetError)
+    {
         SwingUtilities.invokeLater(new Runnable()
         {
             @Override
             public void run()
             {
+                if (isTelnetError && chkIgnoreErrors.isSelected())
+                {
+                    return;
+                }
+
                 final StyledDocument styledDocument = mainOutput.getStyledDocument();
 
                 int startLength = styledDocument.getLength();

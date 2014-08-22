@@ -5,7 +5,7 @@ import java.awt.Color;
 public class BTC_ConsoleMessage
 {
     private final String message;
-    private final Color color;
+    private Color color;
 
     public BTC_ConsoleMessage(final String message)
     {
@@ -27,5 +27,10 @@ public class BTC_ConsoleMessage
     public Color getColor()
     {
         return color;
+    }
+
+    public void setColor(Color color)
+    {
+        this.color = color;
     }
 }
