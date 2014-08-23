@@ -1,20 +1,43 @@
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URL;
-import java.util.*;
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import javax.swing.JCheckBox;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollBar;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.text.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 public class BTC_MainPanel extends javax.swing.JFrame
 {
     private final BTC_ConnectionManager connectionManager = new BTC_ConnectionManager();
+    private final List<PlayerInfo> playerList = new ArrayList<>();
+    private final PlayerListTableModel playerListTableModel = new PlayerListTableModel(playerList);
 
     public BTC_MainPanel()
     {
@@ -46,6 +69,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
         setupTablePopup();
 
         this.connectionManager.updateTitle(false);
+
+        this.tblPlayers.setModel(playerListTableModel);
 
         this.tblPlayers.getRowSorter().toggleSortOrder(0);
 
@@ -159,99 +184,82 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     public final PlayerInfo getSelectedPlayer()
     {
-        String name = null;
-        String ip = null;
-        String displayName = null;
-
         final JTable table = BTC_MainPanel.this.tblPlayers;
-        final DefaultTableModel model = (DefaultTableModel) table.getModel();
 
         final int selectedRow = table.getSelectedRow();
-        if (selectedRow < 0)
+        if (selectedRow < 0 || selectedRow >= playerList.size())
         {
             return null;
         }
 
-        for (int col = 0; col <= 2; col++)
+        return playerList.get(table.convertRowIndexToModel(selectedRow));
+    }
+
+    public static class PlayerListTableModel extends AbstractTableModel
+    {
+        private final List<PlayerInfo> _playerList;
+
+        public PlayerListTableModel(List<PlayerInfo> playerList)
         {
-            final int modelRow = table.convertRowIndexToModel(selectedRow);
-            final int modelCol = table.convertColumnIndexToModel(col);
+            this._playerList = playerList;
+        }
 
-            final String colName = model.getColumnName(modelCol);
-            final Object value = model.getValueAt(modelRow, modelCol);
+        @Override
+        public int getRowCount()
+        {
+            return _playerList.size();
+        }
 
-            if (null != colName)
+        @Override
+        public int getColumnCount()
+        {
+            return PlayerInfo.numColumns;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex)
+        {
+            if (rowIndex >= _playerList.size())
             {
-                switch (colName)
-                {
-                    case "Name":
-                    {
-                        name = value.toString();
-                        break;
-                    }
-                    case "IP":
-                    {
-                        ip = value.toString();
-                        break;
-                    }
-                    case "Display Name":
-                    {
-                        displayName = value.toString();
-                        break;
-                    }
-                }
+                return null;
             }
+
+            return _playerList.get(rowIndex).getColumnValue(columnIndex);
         }
 
-        if (name != null && ip != null & displayName != null)
+        @Override
+        public String getColumnName(int columnIndex)
         {
-            return new PlayerInfo(name, ip, displayName);
+            return columnIndex < getColumnCount() ? PlayerInfo.columnNames[columnIndex] : "null";
         }
-        else
+
+        public List<PlayerInfo> getPlayerList()
         {
-            return null;
+            return _playerList;
         }
     }
 
-    public final void updatePlayerList(final Map<String, PlayerInfo> playerList)
+    public final void updatePlayerList(final String selectedPlayerName)
     {
         EventQueue.invokeLater(new Runnable()
         {
             @Override
             public void run()
             {
-                final JTable table = BTC_MainPanel.this.tblPlayers;
-                final DefaultTableModel model = (DefaultTableModel) table.getModel();
+                playerListTableModel.fireTableDataChanged();
 
-                final PlayerInfo player = getSelectedPlayer();
+                BTC_MainPanel.this.txtNumPlayers.setText("" + playerList.size());
 
-                model.setRowCount(0);
-
-                final Iterator<Map.Entry<String, PlayerInfo>> it = playerList.entrySet().iterator();
-                while (it.hasNext())
+                if (selectedPlayerName != null)
                 {
-                    final Map.Entry<String, PlayerInfo> entry = it.next();
-                    PlayerInfo playerInfo = entry.getValue();
+                    final JTable table = BTC_MainPanel.this.tblPlayers;
+                    final ListSelectionModel selectionModel = table.getSelectionModel();
 
-                    model.addRow(new Object[]
+                    for (PlayerInfo player : playerList)
                     {
-                        playerInfo.getName(),
-                        playerInfo.getDisplayName(),
-                        playerInfo.getIp()
-                    });
-                }
-
-                if (player != null)
-                {
-                    final int modelCol = table.convertColumnIndexToModel(0);
-                    final int rowCount = table.getRowCount();
-                    for (int row = 0; row < rowCount; row++)
-                    {
-                        if (player.getName().equals(table.getValueAt(row, modelCol).toString()))
+                        if (player.getName().equals(selectedPlayerName))
                         {
-                            final ListSelectionModel selectionModel = table.getSelectionModel();
-                            selectionModel.setSelectionInterval(0, row);
-                            break;
+                            selectionModel.setSelectionInterval(0, table.convertRowIndexToView(playerList.indexOf(player)));
                         }
                     }
                 }
@@ -365,6 +373,12 @@ public class BTC_MainPanel extends javax.swing.JFrame
                                             BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied name to clipboard: " + _player.getName()));
                                             break;
                                         }
+                                        case "Copy UUID":
+                                        {
+                                            copyToClipboard(_player.getName());
+                                            BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied UUID to clipboard: " + _player.getUuid()));
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -386,6 +400,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
                         popup.add(item);
 
                         item = new PlayerListPopupItem("Copy IP", player);
+                        item.addActionListener(popupAction);
+                        popup.add(item);
+
+                        item = new PlayerListPopupItem("Copy UUID", player);
                         item.addActionListener(popupAction);
                         popup.add(item);
 
@@ -487,6 +505,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblPlayers = new javax.swing.JTable();
+        jLabel3 = new javax.swing.JLabel();
+        txtNumPlayers = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         chkIgnorePlayerCommands = new javax.swing.JCheckBox();
         chkIgnoreServerCommands = new javax.swing.JCheckBox();
@@ -564,7 +584,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtCommand)
-                            .addComponent(txtServer, 0, 428, Short.MAX_VALUE))
+                            .addComponent(txtServer, 0, 431, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(btnConnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -582,7 +602,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(mainOutputScoll, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                .addComponent(mainOutputScoll, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCommand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -601,39 +621,13 @@ public class BTC_MainPanel extends javax.swing.JFrame
         splitPane.setLeftComponent(jPanel3);
 
         tblPlayers.setAutoCreateRowSorter(true);
-        tblPlayers.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-
-            },
-            new String []
-            {
-                "Name", "Display Name", "IP"
-            }
-        )
-        {
-            Class[] types = new Class []
-            {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-            boolean[] canEdit = new boolean []
-            {
-                false, false, false
-            };
-
-            public Class getColumnClass(int columnIndex)
-            {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
-                return canEdit [columnIndex];
-            }
-        });
         tblPlayers.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(tblPlayers);
         tblPlayers.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+        jLabel3.setText("# Players:");
+
+        txtNumPlayers.setEditable(false);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -641,14 +635,24 @@ public class BTC_MainPanel extends javax.swing.JFrame
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtNumPlayers, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(txtNumPlayers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -689,7 +693,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                     .addComponent(chkIgnoreServerCommands)
                     .addComponent(chkShowChatOnly)
                     .addComponent(chkIgnoreErrors))
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -702,7 +706,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 .addComponent(chkShowChatOnly, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chkIgnoreErrors, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(318, Short.MAX_VALUE))
+                .addContainerGap(323, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Filters", jPanel1);
@@ -793,6 +797,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JCheckBox chkShowChatOnly;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -803,6 +808,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JSplitPane splitPane;
     private javax.swing.JTable tblPlayers;
     private javax.swing.JTextField txtCommand;
+    private javax.swing.JTextField txtNumPlayers;
     private javax.swing.JComboBox<ServerEntry> txtServer;
     // End of variables declaration//GEN-END:variables
 
@@ -859,5 +865,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
     public JCheckBox getChkIgnoreErrors()
     {
         return chkIgnoreErrors;
+    }
+
+    public List<PlayerInfo> getPlayerList()
+    {
+        return playerList;
     }
 }

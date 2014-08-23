@@ -37,35 +37,32 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
 
     private boolean isType(final BTC_LogMessageType checkType)
     {
-        return this.messageType == checkType;
+        return this.messageType != null ? this.messageType == checkType : false;
     }
 
     public boolean skip()
     {
         final BTC_MainPanel mainPanel = BukkitTelnetClient.mainPanel;
 
-        if (mainPanel == null || this.messageType == null)
+        if (mainPanel == null)
         {
             return false;
         }
 
         if (mainPanel.getChkShowChatOnly().isSelected())
         {
-            if (!isType(BTC_LogMessageType.CHAT_MESSAGE)
+            return !isType(BTC_LogMessageType.CHAT_MESSAGE)
                     && !isType(BTC_LogMessageType.CSAY_MESSAGE)
                     && !isType(BTC_LogMessageType.SAY_MESSAGE)
-                    && !isType(BTC_LogMessageType.ADMINSAY_MESSAGE))
-            {
-                return false;
-            }
+                    && !isType(BTC_LogMessageType.ADMINSAY_MESSAGE);
         }
 
-        if (mainPanel.getChkIgnoreServerCommands().isSelected() && this.messageType == BTC_LogMessageType.ISSUED_SERVER_COMMAND)
+        if (mainPanel.getChkIgnoreServerCommands().isSelected() && isType(BTC_LogMessageType.ISSUED_SERVER_COMMAND))
         {
             return true;
         }
 
-        if (mainPanel.getChkIgnorePlayerCommands().isSelected() && this.messageType == BTC_LogMessageType.PLAYER_COMMAND)
+        if (mainPanel.getChkIgnorePlayerCommands().isSelected() && isType(BTC_LogMessageType.PLAYER_COMMAND))
         {
             return true;
         }

@@ -4,8 +4,9 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.Map;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.Timer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -14,6 +15,8 @@ import org.apache.commons.net.telnet.TelnetClient;
 
 public class BTC_ConnectionManager
 {
+    private static final Pattern LOGIN_MESSAGE = Pattern.compile("\\[.+?@BukkitTelnet\\]\\$ Logged in as (.+)\\.");
+
     private final TelnetClient telnetClient;
     private Thread connectThread;
     private String hostname;
@@ -168,11 +171,10 @@ public class BTC_ConnectionManager
                         String line;
                         while ((line = reader.readLine()) != null)
                         {
-
                             String _loginName = null;
                             if (BTC_ConnectionManager.this.loginName == null)
                             {
-                                _loginName = BTC_PlayerListDecoder.checkForLoginMessage(line);
+                                _loginName = checkForLoginMessage(line);
                             }
                             if (_loginName != null)
                             {
@@ -182,10 +184,16 @@ public class BTC_ConnectionManager
                             }
                             else
                             {
-                                final Map<String, PlayerInfo> playerList = BTC_PlayerListDecoder.checkForPlayerListMessage(line);
-                                if (playerList != null)
+                                final PlayerInfo selectedPlayer = btc.getSelectedPlayer();
+                                String selectedPlayerName = null;
+                                if (selectedPlayer != null)
                                 {
-                                    btc.updatePlayerList(playerList);
+                                    selectedPlayerName = selectedPlayer.getName();
+                                }
+
+                                if (BTC_PlayerListDecoder.checkForPlayerListMessage(line, btc.getPlayerList()))
+                                {
+                                    btc.updatePlayerList(selectedPlayerName);
                                 }
                                 else
                                 {
@@ -212,6 +220,17 @@ public class BTC_ConnectionManager
             }
         });
         this.connectThread.start();
+    }
+
+    public static final String checkForLoginMessage(String message)
+    {
+        final Matcher matcher = LOGIN_MESSAGE.matcher(message);
+        if (matcher.find())
+        {
+            return matcher.group(1);
+        }
+
+        return null;
     }
 
     public final void updateTitle(final boolean isConnected)
