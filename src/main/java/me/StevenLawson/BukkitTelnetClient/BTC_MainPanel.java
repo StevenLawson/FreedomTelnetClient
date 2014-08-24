@@ -323,7 +323,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 {
                     return;
                 }
-                if (mouseEvent.isPopupTrigger() && mouseEvent.getComponent() instanceof JTable)
+
+                if ((SwingUtilities.isRightMouseButton(mouseEvent) || mouseEvent.isControlDown()) && mouseEvent.getComponent() instanceof JTable)
                 {
                     final PlayerInfo player = getSelectedPlayer();
                     if (player != null)
