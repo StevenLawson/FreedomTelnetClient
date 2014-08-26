@@ -1,35 +1,16 @@
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 import java.util.Queue;
-import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollBar;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -39,8 +20,30 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private final List<PlayerInfo> playerList = new ArrayList<>();
     private final PlayerListTableModel playerListTableModel = new PlayerListTableModel(playerList);
 
+    private final List<FavoriteButtonData> favButtonList = new ArrayList<>();
+
     public BTC_MainPanel()
     {
+        favButtonList.add(new FavoriteButtonData("Op All", "opall"));
+        favButtonList.add(new FavoriteButtonData("Deop All", "deopall"));
+        favButtonList.add(new FavoriteButtonData("Nick Clean", "nickclean"));
+        favButtonList.add(new FavoriteButtonData("Adminmode ON", "adminmode on"));
+        favButtonList.add(new FavoriteButtonData("Adminmode OFF", "adminmode off"));
+        favButtonList.add(new FavoriteButtonData("Cake", "cake"));
+        favButtonList.add(new FavoriteButtonData("Mob Purge", "mp"));
+        favButtonList.add(new FavoriteButtonData("Remove Drops", "rd"));
+        favButtonList.add(new FavoriteButtonData("Purge All", "purgeall"));
+        favButtonList.add(new FavoriteButtonData("Set Limit = 500", "setl"));
+        favButtonList.add(new FavoriteButtonData("Stop Server", "stop"));
+        favButtonList.add(new FavoriteButtonData("Toggle Water Placement", "toggle waterplace"));
+        favButtonList.add(new FavoriteButtonData("Toggle Fire Placement", "toggle fireplace"));
+        favButtonList.add(new FavoriteButtonData("Toggle Lava Placement", "toggle lavaplace"));
+        favButtonList.add(new FavoriteButtonData("Toggle Fluid Spread", "toggle fluidspread"));
+        favButtonList.add(new FavoriteButtonData("Toggle Lava Damage", "toggle lavadmg"));
+        favButtonList.add(new FavoriteButtonData("Toggle Fire Spread", "toggle firespread"));
+        favButtonList.add(new FavoriteButtonData("Toggle Lockdown", "toggle lockdown"));
+        favButtonList.add(new FavoriteButtonData("Toggle Explosives", "toggle explosives"));
+
         initComponents();
     }
 
@@ -68,7 +71,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         setupTablePopup();
 
-        this.connectionManager.updateTitle(false);
+        this.getConnectionManager().updateTitle(false);
 
         this.tblPlayers.setModel(playerListTableModel);
 
@@ -352,7 +355,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
                                     final String output = String.format(_command.getFormat(), _player.getName());
 
-                                    BTC_MainPanel.this.connectionManager.sendDelayedCommand(output, true, 100);
+                                    BTC_MainPanel.this.getConnectionManager().sendDelayedCommand(output, true, 100);
                                 }
                                 else if (_source instanceof PlayerListPopupItem)
                                 {
@@ -482,7 +485,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         loadServerList();
 
-        connectionManager.triggerConnect(entry.getAddress());
+        getConnectionManager().triggerConnect(entry.getAddress());
     }
 
     @SuppressWarnings("unchecked")
@@ -513,6 +516,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
         chkIgnoreServerCommands = new javax.swing.JCheckBox();
         chkShowChatOnly = new javax.swing.JCheckBox();
         chkIgnoreErrors = new javax.swing.JCheckBox();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jPanel5 = new BTC_FavoriteButtonsPanel(favButtonList);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BukkitTelnetClient");
@@ -712,6 +718,30 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         jTabbedPane1.addTab("Filters", jPanel1);
 
+        jScrollPane1.setBorder(null);
+
+        jPanel5.setLayout(null);
+        jScrollPane1.setViewportView(jPanel5);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Commands", jPanel4);
+
         splitPane.setRightComponent(jTabbedPane1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -742,7 +772,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         }
         if (evt.getKeyCode() == KeyEvent.VK_ENTER)
         {
-            connectionManager.sendCommand(txtCommand.getText());
+            getConnectionManager().sendCommand(txtCommand.getText());
             txtCommand.selectAll();
         }
     }//GEN-LAST:event_txtCommandKeyPressed
@@ -762,7 +792,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         {
             return;
         }
-        connectionManager.triggerDisconnect();
+        getConnectionManager().triggerDisconnect();
     }//GEN-LAST:event_btnDisconnectActionPerformed
 
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnSendActionPerformed
@@ -771,7 +801,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         {
             return;
         }
-        connectionManager.sendCommand(txtCommand.getText());
+        getConnectionManager().sendCommand(txtCommand.getText());
         txtCommand.selectAll();
     }//GEN-LAST:event_btnSendActionPerformed
 
@@ -802,6 +832,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextPane mainOutput;
@@ -871,5 +904,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
     public List<PlayerInfo> getPlayerList()
     {
         return playerList;
+    }
+
+    public BTC_ConnectionManager getConnectionManager()
+    {
+        return connectionManager;
     }
 }

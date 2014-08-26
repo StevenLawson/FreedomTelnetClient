@@ -17,7 +17,7 @@ public class BTC_ConnectionManager
 {
     private static final Pattern LOGIN_MESSAGE = Pattern.compile("\\[.+?@BukkitTelnet\\]\\$ Logged in as (.+)\\.");
 
-    private final TelnetClient telnetClient;
+    private final TelnetClient telnetClient = new TelnetClient();
     private Thread connectThread;
     private String hostname;
     private int port;
@@ -26,7 +26,6 @@ public class BTC_ConnectionManager
 
     public BTC_ConnectionManager()
     {
-        this.telnetClient = new TelnetClient();
     }
 
     public void triggerConnect(final String hostname, final int port)
@@ -117,6 +116,12 @@ public class BTC_ConnectionManager
             if (verbose)
             {
                 BukkitTelnetClient.mainPanel.writeToConsole(new BTC_ConsoleMessage(":" + text));
+            }
+
+            final OutputStream out = this.telnetClient.getOutputStream();
+            if (out == null)
+            {
+                return;
             }
 
             this.telnetClient.getOutputStream().write((text + "\r\n").getBytes());
