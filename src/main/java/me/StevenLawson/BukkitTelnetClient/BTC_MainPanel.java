@@ -699,13 +699,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         });
 
         chkIgnoreErrors.setText("Ignore warnings and errors");
-        chkIgnoreErrors.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                chkIgnoreErrorsActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -829,11 +822,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         chkIgnorePlayerCommands.setEnabled(enable);
         chkIgnoreServerCommands.setEnabled(enable);
     }//GEN-LAST:event_chkShowChatOnlyActionPerformed
-
-    private void chkIgnoreErrorsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_chkIgnoreErrorsActionPerformed
-    {//GEN-HEADEREND:event_chkIgnoreErrorsActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_chkIgnoreErrorsActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConnect;
