@@ -157,7 +157,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;ServerEntry&gt;"/>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;me.StevenLawson.BukkitTelnetClient.ServerEntry&gt;"/>
               </AuxValues>
             </Component>
             <Component class="javax.swing.JCheckBox" name="chkAutoScroll">

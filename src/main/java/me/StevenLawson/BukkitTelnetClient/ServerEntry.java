@@ -18,14 +18,18 @@
  */
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.util.*;
-import org.w3c.dom.*;
+import java.util.HashSet;
+import java.util.Objects;
 
-public class ServerEntry
+public class ServerEntry implements ConfigEntry
 {
     private String name;
     private String address;
     private boolean lastUsed = false;
+
+    public ServerEntry()
+    {
+    }
 
     public ServerEntry(final String name, final String address)
     {
@@ -40,32 +44,38 @@ public class ServerEntry
         this.lastUsed = lastUsed;
     }
 
+    @ConfigEntryList.ParameterGetter(name = "name")
     public String getName()
     {
         return name;
     }
 
+    @ConfigEntryList.ParameterSetter(name = "name")
     public void setName(String name)
     {
         this.name = name;
     }
 
+    @ConfigEntryList.ParameterGetter(name = "address")
     public String getAddress()
     {
         return address;
     }
 
+    @ConfigEntryList.ParameterSetter(name = "address")
     public void setAddress(String address)
     {
         this.address = address;
     }
 
+    @ConfigEntryList.ParameterGetter(name = "lastUsed")
     public boolean isLastUsed()
     {
         return lastUsed;
     }
 
-    public void setLastUsed(boolean lastUsed)
+    @ConfigEntryList.ParameterSetter(name = "lastUsed")
+    public void setLastUsed(Boolean lastUsed)
     {
         this.lastUsed = lastUsed;
     }
@@ -74,8 +84,8 @@ public class ServerEntry
     public int hashCode()
     {
         int hash = 7;
-        hash = 67 * hash + Objects.hashCode(this.name);
-        hash = 67 * hash + Objects.hashCode(this.address);
+        hash = 59 * hash + Objects.hashCode(this.name);
+        hash = 59 * hash + Objects.hashCode(this.address);
         return hash;
     }
 
@@ -107,65 +117,29 @@ public class ServerEntry
         return true;
     }
 
-    public static Element listToXML(final Set<ServerEntry> servers, final Document doc)
+    public static class ServerEntryList extends ConfigEntryList<ServerEntry>
     {
-        final Element serversElement = doc.createElement("servers");
-
-        for (final ServerEntry command : servers)
+        public ServerEntryList()
         {
-            final Element commandElement = doc.createElement("server");
-            serversElement.appendChild(commandElement);
-
-            final Element serverName = doc.createElement("name");
-            serverName.appendChild(doc.createTextNode(command.getName()));
-            commandElement.appendChild(serverName);
-
-            final Element serverAddress = doc.createElement("address");
-            serverAddress.appendChild(doc.createTextNode(command.getAddress()));
-            commandElement.appendChild(serverAddress);
-
-            final Element serverLastUsed = doc.createElement("lastUsed");
-            serverLastUsed.appendChild(doc.createTextNode(Boolean.toString(command.isLastUsed())));
-            commandElement.appendChild(serverLastUsed);
+            super(new HashSet<ServerEntry>(), ServerEntry.class);
         }
 
-        return serversElement;
-    }
-
-    public static boolean xmlToList(final Set<ServerEntry> servers, final Document doc)
-    {
-        NodeList serverNodes = doc.getDocumentElement().getElementsByTagName("servers");
-        if (serverNodes.getLength() < 1)
+        @Override
+        public String getParentElementName()
         {
-            return false;
-        }
-        serverNodes = serverNodes.item(0).getChildNodes();
-
-        servers.clear();
-
-        for (int i = 0; i < serverNodes.getLength(); i++)
-        {
-            final Node node = serverNodes.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE)
-            {
-                final Element element = (Element) node;
-
-                final ServerEntry server = new ServerEntry(
-                        element.getElementsByTagName("name").item(0).getTextContent(),
-                        element.getElementsByTagName("address").item(0).getTextContent(),
-                        Boolean.valueOf(element.getElementsByTagName("lastUsed").item(0).getTextContent())
-                );
-
-                servers.add(server);
-            }
+            return "servers";
         }
 
-        return true;
+        @Override
+        public String getItemElementName()
+        {
+            return "server";
+        }
     }
 
     @Override
     public String toString()
     {
-        return String.format("%s (%s)", this.name, this.address);
+        return String.format("%s (%s)", getName(), getAddress());
     }
 }

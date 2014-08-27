@@ -35,7 +35,7 @@ public class BTC_ConfigLoader
     private static final String SETTINGS_FILE = "settings.xml";
 
     private final List<PlayerCommandEntry> playerCommands = new ArrayList<>();
-    private final Set<ServerEntry> servers = new HashSet<>();
+    private final ServerEntry.ServerEntryList servers = new ServerEntry.ServerEntryList();
 
     public BTC_ConfigLoader()
     {
@@ -59,9 +59,6 @@ public class BTC_ConfigLoader
         if (settings.exists())
         {
             boolean loadError = loadXML(settings);
-
-            final List<ServerEntry> oldServers = importOldConfig();
-            this.servers.addAll(oldServers);
 
             generateXML(settings);
 
@@ -100,9 +97,9 @@ public class BTC_ConfigLoader
         return this.playerCommands;
     }
 
-    public Set<ServerEntry> getServers()
+    public Collection<ServerEntry> getServers()
     {
-        return servers;
+        return this.servers.getList();
     }
 
     private boolean generateXML(final File file)
@@ -115,7 +112,7 @@ public class BTC_ConfigLoader
             doc.appendChild(rootElement);
 
             rootElement.appendChild(PlayerCommandEntry.listToXML(this.playerCommands, doc));
-            rootElement.appendChild(ServerEntry.listToXML(this.servers, doc));
+            rootElement.appendChild(this.servers.toXML(doc));
 
             final Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
@@ -148,7 +145,7 @@ public class BTC_ConfigLoader
                 hadErrors = true;
             }
 
-            if (!ServerEntry.xmlToList(this.servers, doc))
+            if (!this.servers.fromXML(doc))
             {
                 System.out.println("Error loading servers.");
                 hadErrors = true;
@@ -182,35 +179,5 @@ public class BTC_ConfigLoader
         }
 
         return false;
-    }
-
-    private static List<ServerEntry> importOldConfig()
-    {
-        final List<ServerEntry> oldServers = new ArrayList<>();
-
-        try
-        {
-            final File file = new File("btc_servers.cfg");
-            if (file.exists())
-            {
-                try (final BufferedReader in = new BufferedReader(new FileReader(file)))
-                {
-                    String line;
-                    while ((line = in.readLine()) != null)
-                    {
-                        line = line.trim();
-                        oldServers.add(new ServerEntry("legacy", line, false));
-                    }
-                }
-
-                FileUtils.moveFile(file, new File("btc_servers.cfg.bak"));
-            }
-        }
-        catch (IOException ex)
-        {
-            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
-        }
-
-        return oldServers;
     }
 }
