@@ -57,19 +57,28 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
             for (final Method method : getEntryClass().getDeclaredMethods())
             {
                 final ParameterGetter annotation = method.getDeclaredAnnotation(ParameterGetter.class);
-                if (annotation != null)
+                if (annotation == null)
                 {
-                    try
-                    {
-                        final Element parameter = doc.createElement(annotation.name());
-                        parameter.appendChild(doc.createTextNode(method.invoke(entry).toString()));
-                        item.appendChild(parameter);
-                    }
-                    catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | DOMException ex)
-                    {
-                        BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
-                    }
+                    continue;
                 }
+
+                final Element parameter = doc.createElement(annotation.name());
+
+                Object value = null;
+                try
+                {
+                    value = method.invoke(entry);
+                }
+                catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex)
+                {
+                    BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+                }
+                if (value != null)
+                {
+                    parameter.appendChild(doc.createTextNode(value.toString()));
+                }
+
+                item.appendChild(parameter);
             }
         }
 
@@ -79,32 +88,47 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
     public boolean fromXML(final Document doc)
     {
         NodeList itemNodes = doc.getDocumentElement().getElementsByTagName(getParentElementName());
-        if (itemNodes.getLength() < 1)
+        if (itemNodes.getLength() == 0)
         {
             return false;
         }
-        itemNodes.item(0).getChildNodes();
+        itemNodes = itemNodes.item(0).getChildNodes();
 
         getList().clear();
 
         for (int i = 0; i < itemNodes.getLength(); i++)
         {
-            final Node node = itemNodes.item(0);
-            if (node.getNodeType() == Node.ELEMENT_NODE)
+            final Node itemNode = itemNodes.item(i);
+            if (itemNode.getNodeType() == Node.ELEMENT_NODE)
             {
-                final Element element = (Element) node;
-
+                final E newEntry;
                 try
                 {
-                    final E newEntry = getEntryClass().newInstance();
+                    newEntry = getEntryClass().newInstance();
+                }
+                catch (InstantiationException | IllegalAccessException ex)
+                {
+                    BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+                    return false;
+                }
 
-                    for (final Method method : getEntryClass().getDeclaredMethods())
+                final Element itemElement = (Element) itemNode;
+                for (final Method method : getEntryClass().getDeclaredMethods())
+                {
+                    final ParameterSetter annotation = method.getDeclaredAnnotation(ParameterSetter.class);
+                    if (annotation == null)
                     {
-                        final ParameterSetter annotation = method.getDeclaredAnnotation(ParameterSetter.class);
-                        if (annotation != null)
+                        continue;
+                    }
+
+                    final NodeList tags = itemElement.getElementsByTagName(annotation.name());
+                    if (tags.getLength() > 0)
+                    {
+                        final String valueStr = itemElement.getElementsByTagName(annotation.name()).item(0).getTextContent();
+                        final Class<?> _type = method.getParameterTypes()[0];
+
+                        try
                         {
-                            final String valueStr = element.getElementsByTagName(annotation.name()).item(0).getTextContent();
-                            final Class<?> _type = method.getParameterTypes()[0];
                             if (_type == Boolean.class)
                             {
                                 method.invoke(newEntry, Boolean.valueOf(valueStr));
@@ -114,14 +138,14 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
                                 method.invoke(newEntry, valueStr);
                             }
                         }
+                        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex)
+                        {
+                            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+                        }
                     }
+                }
 
-                    getList().add(newEntry);
-                }
-                catch (Exception ex)
-                {
-                    BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
-                }
+                getList().add(newEntry);
             }
         }
 

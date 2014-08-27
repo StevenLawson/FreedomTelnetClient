@@ -457,6 +457,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
     public final void saveServersAndTriggerConnect()
     {
         final Object selectedItem = txtServer.getSelectedItem();
+        if (selectedItem == null)
+        {
+            return;
+        }
 
         ServerEntry entry;
         if (selectedItem instanceof ServerEntry)
