@@ -18,7 +18,6 @@
  */
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -45,7 +44,7 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
         return entryClass;
     }
 
-    public Element toXML(final Document doc)
+    public Element listToXML(final Document doc)
     {
         final Element parent = doc.createElement(getParentElementName());
 
@@ -85,7 +84,7 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
         return parent;
     }
 
-    public boolean fromXML(final Document doc)
+    public boolean listFromXML(final Document doc)
     {
         NodeList itemNodes = doc.getDocumentElement().getElementsByTagName(getParentElementName());
         if (itemNodes.getLength() == 0)
@@ -155,18 +154,4 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
     public abstract String getParentElementName();
 
     public abstract String getItemElementName();
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public @interface ParameterGetter
-    {
-        public String name();
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public @interface ParameterSetter
-    {
-        public String name();
-    }
 }

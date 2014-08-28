@@ -21,7 +21,7 @@ package me.StevenLawson.BukkitTelnetClient;
 import java.util.HashSet;
 import java.util.Objects;
 
-public class ServerEntry implements ConfigEntry
+public class ServerEntry extends ConfigEntry
 {
     private String name;
     private String address;
@@ -44,37 +44,37 @@ public class ServerEntry implements ConfigEntry
         this.lastUsed = lastUsed;
     }
 
-    @ConfigEntryList.ParameterGetter(name = "name")
+    @ParameterGetter(name = "name")
     public String getName()
     {
         return name;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "name")
+    @ParameterSetter(name = "name")
     public void setName(String name)
     {
         this.name = name;
     }
 
-    @ConfigEntryList.ParameterGetter(name = "address")
+    @ParameterGetter(name = "address")
     public String getAddress()
     {
         return address;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "address")
+    @ParameterSetter(name = "address")
     public void setAddress(String address)
     {
         this.address = address;
     }
 
-    @ConfigEntryList.ParameterGetter(name = "lastUsed")
+    @ParameterGetter(name = "lastUsed")
     public boolean isLastUsed()
     {
         return lastUsed;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "lastUsed")
+    @ParameterSetter(name = "lastUsed")
     public void setLastUsed(Boolean lastUsed)
     {
         this.lastUsed = lastUsed;
@@ -141,5 +141,11 @@ public class ServerEntry implements ConfigEntry
     public String toString()
     {
         return String.format("%s (%s)", getName(), getAddress());
+    }
+
+    @Override
+    public String getElementName()
+    {
+        return "server";
     }
 }

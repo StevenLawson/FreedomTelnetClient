@@ -20,7 +20,7 @@ package me.StevenLawson.BukkitTelnetClient;
 
 import java.util.ArrayList;
 
-public class FavoriteButtonEntry implements ConfigEntry
+public class FavoriteButtonEntry extends ConfigEntry
 {
     private String label;
     private String command;
@@ -29,31 +29,25 @@ public class FavoriteButtonEntry implements ConfigEntry
     {
     }
 
-    public FavoriteButtonEntry(final String label, final String command)
-    {
-        this.label = label;
-        this.command = command;
-    }
-
-    @ConfigEntryList.ParameterGetter(name = "label")
+    @ParameterGetter(name = "label")
     public String getLabel()
     {
         return label;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "label")
+    @ParameterSetter(name = "label")
     public void setLabel(String label)
     {
         this.label = label;
     }
 
-    @ConfigEntryList.ParameterGetter(name = "command")
+    @ParameterGetter(name = "command")
     public String getCommand()
     {
         return command;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "command")
+    @ParameterSetter(name = "command")
     public void setCommand(String command)
     {
         this.command = command;
@@ -77,5 +71,11 @@ public class FavoriteButtonEntry implements ConfigEntry
         {
             return "favoriteButton";
         }
+    }
+
+    @Override
+    public String getElementName()
+    {
+        return "favoriteButton";
     }
 }

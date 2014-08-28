@@ -20,7 +20,7 @@ package me.StevenLawson.BukkitTelnetClient;
 
 import java.util.ArrayList;
 
-public class PlayerCommandEntry implements ConfigEntry
+public class PlayerCommandEntry extends ConfigEntry
 {
     private String name;
     private String format;
@@ -29,31 +29,25 @@ public class PlayerCommandEntry implements ConfigEntry
     {
     }
 
-    public PlayerCommandEntry(String name, String format)
-    {
-        this.name = name;
-        this.format = format;
-    }
-
-    @ConfigEntryList.ParameterGetter(name = "format")
+    @ParameterGetter(name = "format")
     public String getFormat()
     {
         return format;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "format")
+    @ParameterSetter(name = "format")
     public void setFormat(String format)
     {
         this.format = format;
     }
 
-    @ConfigEntryList.ParameterGetter(name = "name")
+    @ParameterGetter(name = "name")
     public String getName()
     {
         return name;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "name")
+    @ParameterSetter(name = "name")
     public void setName(String name)
     {
         this.name = name;
@@ -77,5 +71,11 @@ public class PlayerCommandEntry implements ConfigEntry
         {
             return "playerCommand";
         }
+    }
+
+    @Override
+    public String getElementName()
+    {
+        return "playerCommand";
     }
 }

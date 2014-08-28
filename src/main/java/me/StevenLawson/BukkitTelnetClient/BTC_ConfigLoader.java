@@ -117,9 +117,9 @@ public class BTC_ConfigLoader
             final Element rootElement = doc.createElement("configuration");
             doc.appendChild(rootElement);
 
-            rootElement.appendChild(this.servers.toXML(doc));
-            rootElement.appendChild(this.playerCommands.toXML(doc));
-            rootElement.appendChild(this.favoriteButtons.toXML(doc));
+            rootElement.appendChild(this.servers.listToXML(doc));
+            rootElement.appendChild(this.playerCommands.listToXML(doc));
+            rootElement.appendChild(this.favoriteButtons.listToXML(doc));
 
             final Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
@@ -146,19 +146,19 @@ public class BTC_ConfigLoader
             final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
             doc.getDocumentElement().normalize();
 
-            if (!this.servers.fromXML(doc))
+            if (!this.servers.listFromXML(doc))
             {
                 System.out.println("Error loading servers.");
                 hadErrors = true;
             }
 
-            if (!this.playerCommands.fromXML(doc))
+            if (!this.playerCommands.listFromXML(doc))
             {
                 System.out.println("Error loading playerCommands.");
                 hadErrors = true;
             }
 
-            if (!this.favoriteButtons.fromXML(doc))
+            if (!this.favoriteButtons.listFromXML(doc))
             {
                 System.out.println("Error favorite buttons.");
                 hadErrors = true;

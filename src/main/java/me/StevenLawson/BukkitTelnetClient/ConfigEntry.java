@@ -18,6 +18,103 @@
  */
 package me.StevenLawson.BukkitTelnetClient;
 
-public interface ConfigEntry
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
+import org.w3c.dom.*;
+
+public abstract class ConfigEntry
 {
+    public abstract String getElementName();
+
+    public ConfigEntry fromXML(final Document doc)
+    {
+        final ConfigEntry newEntry;
+        try
+        {
+            newEntry = getClass().newInstance();
+        }
+        catch (InstantiationException | IllegalAccessException ex)
+        {
+            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+            return null;
+        }
+
+        final NodeList itemNodes = doc.getDocumentElement().getElementsByTagName(getElementName());
+        if (itemNodes.getLength() > 0)
+        {
+            final Node itemNode = itemNodes.item(0);
+            if (itemNode.getNodeType() == Node.ELEMENT_NODE)
+            {
+                final Element itemElement = (Element) itemNode;
+                for (final Method method : getClass().getDeclaredMethods())
+                {
+                    final ParameterSetter annotation = method.getDeclaredAnnotation(ParameterSetter.class);
+                    if (annotation == null)
+                    {
+                        continue;
+                    }
+
+                    final NodeList tags = itemElement.getElementsByTagName(annotation.name());
+                    if (tags.getLength() > 0)
+                    {
+                        final String valueStr = itemElement.getElementsByTagName(annotation.name()).item(0).getTextContent();
+                        final Class<?> _type = method.getParameterTypes()[0];
+
+                        try
+                        {
+                            if (_type == Boolean.class)
+                            {
+                                method.invoke(newEntry, Boolean.valueOf(valueStr));
+                            }
+                            else if (_type == String.class)
+                            {
+                                method.invoke(newEntry, valueStr);
+                            }
+                        }
+                        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex)
+                        {
+                            BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            }
+        }
+
+        return newEntry;
+    }
+
+    public Element toXML(final Document doc)
+    {
+        final Element item = doc.createElement(getElementName());
+
+        for (final Method method : getClass().getDeclaredMethods())
+        {
+            final ParameterGetter annotation = method.getDeclaredAnnotation(ParameterGetter.class);
+            if (annotation == null)
+            {
+                continue;
+            }
+
+            final Element parameter = doc.createElement(annotation.name());
+
+            Object value = null;
+            try
+            {
+                value = method.invoke(this);
+            }
+            catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex)
+            {
+                BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+            }
+            if (value != null)
+            {
+                parameter.appendChild(doc.createTextNode(value.toString()));
+            }
+
+            item.appendChild(parameter);
+        }
+
+        return item;
+    }
 }
