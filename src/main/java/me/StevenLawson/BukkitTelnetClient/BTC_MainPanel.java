@@ -346,12 +346,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                                 if (_source instanceof PlayerListPopupItem_Command)
                                 {
                                     final PlayerListPopupItem_Command source = (PlayerListPopupItem_Command) _source;
-
-                                    final PlayerInfo _player = source.getPlayer();
-                                    final PlayerCommandEntry _command = source.getCommand();
-
-                                    final String output = String.format(_command.getFormat(), _player.getName());
-
+                                    final String output = source.getCommand().buildOutput(source.getPlayer(), true);
                                     BTC_MainPanel.this.getConnectionManager().sendDelayedCommand(output, true, 100);
                                 }
                                 else if (_source instanceof PlayerListPopupItem)

@@ -4,59 +4,75 @@
     <playerCommands>
         <playerCommand>
             <name>Ban</name>
-            <format>glist ban %s</format>
+            <format>glist ban $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Toggle Mute</name>
-            <format>mute %s</format>
+            <format>mute $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Kick</name>
-            <format>tempban %s 10s Kicked</format>
+            <format>tempban $TARGET_NAME 10s Kicked</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Tempban 5m + Reason</name>
+            <format>tempban $TARGET_NAME 5m $REASON</format>
         </playerCommand>
         <playerCommand>
             <name>Tempban 5m</name>
-            <format>tempban %s 5m</format>
+            <format>tempban $TARGET_NAME 5m</format>
         </playerCommand>
         <playerCommand>
             <name>Smite</name>
-            <format>smite %s</format>
+            <format>smite $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Op</name>
-            <format>op %s</format>
+            <format>op $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Deop</name>
-            <format>deop %s</format>
+            <format>deop $TARGET_NAME</format>
+        </playerCommand>
+        <playerCommand>
+            <name>GTFO + Reason</name>
+            <format>gtfo $TARGET_NAME $REASON</format>
         </playerCommand>
         <playerCommand>
             <name>GTFO</name>
-            <format>gtfo %s</format>
+            <format>gtfo $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Toggle Freeze</name>
-            <format>fr %s</format>
+            <format>fr $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Cage</name>
-            <format>cage %s</format>
+            <format>cage $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Uncage</name>
-            <format>cage %s off</format>
+            <format>cage $TARGET_NAME off</format>
         </playerCommand>
         <playerCommand>
             <name>Doom</name>
-            <format>doom %s</format>
+            <format>doom $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Creative</name>
-            <format>creative %s</format>
+            <format>creative $TARGET_NAME</format>
         </playerCommand>
         <playerCommand>
             <name>Survival</name>
-            <format>survival %s</format>
+            <format>survival $TARGET_NAME</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Seen Name</name>
+            <format>seen $TARGET_NAME</format>
+        </playerCommand>
+        <playerCommand>
+            <name>Seen IP</name>
+            <format>seen $TARGET_IP</format>
         </playerCommand>
     </playerCommands>
     <favoriteButtons>

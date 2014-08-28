@@ -19,6 +19,8 @@
 package me.StevenLawson.BukkitTelnetClient;
 
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import org.apache.commons.lang3.StringUtils;
 
 public class PlayerCommandEntry extends ConfigEntry
 {
@@ -51,6 +53,33 @@ public class PlayerCommandEntry extends ConfigEntry
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public String buildOutput(PlayerInfo player, boolean useReasonPrompt)
+    {
+        String output = StringUtils.replaceEach(getFormat(),
+                new String[]
+                {
+                    "$TARGET_NAME",
+                    "$TARGET_IP",
+                    "$TARGET_UUID",
+                }, new String[]
+                {
+                    player.getName(),
+                    player.getIp(),
+                    player.getUuid()
+                }
+        );
+
+        if (useReasonPrompt && output.contains("$REASON"))
+        {
+            final String reason = StringUtils.trimToEmpty(
+                    JOptionPane.showInputDialog(null, "Input reason:\n" + output, "Input Reason", JOptionPane.PLAIN_MESSAGE)
+            );
+            output = StringUtils.replace(output, "$REASON", reason);
+        }
+
+        return StringUtils.trimToEmpty(output);
     }
 
     public static class PlayerCommandEntryList extends ConfigEntryList<PlayerCommandEntry>
