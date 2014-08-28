@@ -20,62 +20,62 @@ package me.StevenLawson.BukkitTelnetClient;
 
 import java.util.ArrayList;
 
-public class PlayerCommandEntry implements ConfigEntry
+public class FavoriteButtonEntry implements ConfigEntry
 {
-    private String name;
-    private String format;
+    private String label;
+    private String command;
 
-    public PlayerCommandEntry()
+    public FavoriteButtonEntry()
     {
     }
 
-    public PlayerCommandEntry(String name, String format)
+    public FavoriteButtonEntry(final String label, final String command)
     {
-        this.name = name;
-        this.format = format;
+        this.label = label;
+        this.command = command;
     }
 
-    @ConfigEntryList.ParameterGetter(name = "format")
-    public String getFormat()
+    @ConfigEntryList.ParameterGetter(name = "label")
+    public String getLabel()
     {
-        return format;
+        return label;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "format")
-    public void setFormat(String format)
+    @ConfigEntryList.ParameterSetter(name = "label")
+    public void setLabel(String label)
     {
-        this.format = format;
+        this.label = label;
     }
 
-    @ConfigEntryList.ParameterGetter(name = "name")
-    public String getName()
+    @ConfigEntryList.ParameterGetter(name = "command")
+    public String getCommand()
     {
-        return name;
+        return command;
     }
 
-    @ConfigEntryList.ParameterSetter(name = "name")
-    public void setName(String name)
+    @ConfigEntryList.ParameterSetter(name = "command")
+    public void setCommand(String command)
     {
-        this.name = name;
+        this.command = command;
     }
 
-    public static class PlayerCommandEntryList extends ConfigEntryList<PlayerCommandEntry>
+    public static class FavoriteButtonEntryList extends ConfigEntryList<FavoriteButtonEntry>
     {
-        public PlayerCommandEntryList()
+        public FavoriteButtonEntryList()
         {
-            super(new ArrayList<PlayerCommandEntry>(), PlayerCommandEntry.class);
+            super(new ArrayList<FavoriteButtonEntry>(), FavoriteButtonEntry.class);
         }
 
         @Override
         public String getParentElementName()
         {
-            return "playerCommands";
+            return "favoriteButtons";
         }
 
         @Override
         public String getItemElementName()
         {
-            return "playerCommand";
+            return "favoriteButton";
         }
     }
 }

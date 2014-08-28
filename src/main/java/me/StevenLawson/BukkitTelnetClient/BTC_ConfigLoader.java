@@ -36,6 +36,7 @@ public class BTC_ConfigLoader
 
     private final ServerEntry.ServerEntryList servers = new ServerEntry.ServerEntryList();
     private final PlayerCommandEntry.PlayerCommandEntryList playerCommands = new PlayerCommandEntry.PlayerCommandEntryList();
+    private final FavoriteButtonEntry.FavoriteButtonEntryList favoriteButtons = new FavoriteButtonEntry.FavoriteButtonEntryList();
 
     public BTC_ConfigLoader()
     {
@@ -102,6 +103,11 @@ public class BTC_ConfigLoader
         return this.servers.getList();
     }
 
+    public Collection<FavoriteButtonEntry> getFavoriteButtons()
+    {
+        return favoriteButtons.getList();
+    }
+
     private boolean generateXML(final File file)
     {
         try
@@ -111,8 +117,9 @@ public class BTC_ConfigLoader
             final Element rootElement = doc.createElement("configuration");
             doc.appendChild(rootElement);
 
-            rootElement.appendChild(this.playerCommands.toXML(doc));
             rootElement.appendChild(this.servers.toXML(doc));
+            rootElement.appendChild(this.playerCommands.toXML(doc));
+            rootElement.appendChild(this.favoriteButtons.toXML(doc));
 
             final Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
@@ -139,15 +146,21 @@ public class BTC_ConfigLoader
             final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
             doc.getDocumentElement().normalize();
 
+            if (!this.servers.fromXML(doc))
+            {
+                System.out.println("Error loading servers.");
+                hadErrors = true;
+            }
+
             if (!this.playerCommands.fromXML(doc))
             {
                 System.out.println("Error loading playerCommands.");
                 hadErrors = true;
             }
 
-            if (!this.servers.fromXML(doc))
+            if (!this.favoriteButtons.fromXML(doc))
             {
-                System.out.println("Error loading servers.");
+                System.out.println("Error favorite buttons.");
                 hadErrors = true;
             }
         }

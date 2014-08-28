@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
+    <servers/>
     <playerCommands>
         <playerCommand>
             <name>Ban</name>
@@ -58,5 +59,82 @@
             <format>survival %s</format>
         </playerCommand>
     </playerCommands>
-    <servers/>
+    <favoriteButtons>
+        <favoriteButton>
+            <label>Op All</label>
+            <command>opall</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Deop All</label>
+            <command>deopall</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Nick Clean</label>
+            <command>nickclean</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Adminmode ON</label>
+            <command>adminmode on</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Adminmode OFF</label>
+            <command>adminmode off</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Cake</label>
+            <command>cake</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Mob Purge</label>
+            <command>mp</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Remove Drops</label>
+            <command>rd</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Purge All</label>
+            <command>purgeall</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Set Limit = 500</label>
+            <command>setl</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Stop Server</label>
+            <command>stop</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Toggle Water Placement</label>
+            <command>toggle waterplace</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Toggle Fire Placement</label>
+            <command>toggle fireplace</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Toggle Lava Placement</label>
+            <command>toggle lavaplace</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Toggle Fluid Spread</label>
+            <command>toggle fluidspread</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Toggle Lava Damage</label>
+            <command>toggle lavadmg</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Toggle Fire Spread</label>
+            <command>toggle firespread</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Toggle Lockdown</label>
+            <command>toggle lockdown</command>
+        </favoriteButton>
+        <favoriteButton>
+            <label>Toggle Explosives</label>
+            <command>toggle explosives</command>
+        </favoriteButton>
+    </favoriteButtons>
 </configuration>

@@ -37,31 +37,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private final BTC_ConnectionManager connectionManager = new BTC_ConnectionManager();
     private final List<PlayerInfo> playerList = new ArrayList<>();
     private final PlayerListTableModel playerListTableModel = new PlayerListTableModel(playerList);
-
-    private final List<FavoriteButtonData> favButtonList = new ArrayList<>();
+    private final Collection<FavoriteButtonEntry> favButtonList = BukkitTelnetClient.config.getFavoriteButtons();
 
     public BTC_MainPanel()
     {
-        favButtonList.add(new FavoriteButtonData("Op All", "opall"));
-        favButtonList.add(new FavoriteButtonData("Deop All", "deopall"));
-        favButtonList.add(new FavoriteButtonData("Nick Clean", "nickclean"));
-        favButtonList.add(new FavoriteButtonData("Adminmode ON", "adminmode on"));
-        favButtonList.add(new FavoriteButtonData("Adminmode OFF", "adminmode off"));
-        favButtonList.add(new FavoriteButtonData("Cake", "cake"));
-        favButtonList.add(new FavoriteButtonData("Mob Purge", "mp"));
-        favButtonList.add(new FavoriteButtonData("Remove Drops", "rd"));
-        favButtonList.add(new FavoriteButtonData("Purge All", "purgeall"));
-        favButtonList.add(new FavoriteButtonData("Set Limit = 500", "setl"));
-        favButtonList.add(new FavoriteButtonData("Stop Server", "stop"));
-        favButtonList.add(new FavoriteButtonData("Toggle Water Placement", "toggle waterplace"));
-        favButtonList.add(new FavoriteButtonData("Toggle Fire Placement", "toggle fireplace"));
-        favButtonList.add(new FavoriteButtonData("Toggle Lava Placement", "toggle lavaplace"));
-        favButtonList.add(new FavoriteButtonData("Toggle Fluid Spread", "toggle fluidspread"));
-        favButtonList.add(new FavoriteButtonData("Toggle Lava Damage", "toggle lavadmg"));
-        favButtonList.add(new FavoriteButtonData("Toggle Fire Spread", "toggle firespread"));
-        favButtonList.add(new FavoriteButtonData("Toggle Lockdown", "toggle lockdown"));
-        favButtonList.add(new FavoriteButtonData("Toggle Explosives", "toggle explosives"));
-
         initComponents();
     }
 
@@ -521,7 +500,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         mainOutput = new javax.swing.JTextPane();
         btnDisconnect = new javax.swing.JButton();
         btnSend = new javax.swing.JButton();
-        txtServer = new javax.swing.JComboBox<ServerEntry>();
+        txtServer = new javax.swing.JComboBox<me.StevenLawson.BukkitTelnetClient.ServerEntry>();
         chkAutoScroll = new javax.swing.JCheckBox();
         txtCommand = new javax.swing.JTextField();
         btnConnect = new javax.swing.JButton();
@@ -853,7 +832,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JTable tblPlayers;
     private javax.swing.JTextField txtCommand;
     private javax.swing.JTextField txtNumPlayers;
-    private javax.swing.JComboBox<ServerEntry> txtServer;
+    private javax.swing.JComboBox<me.StevenLawson.BukkitTelnetClient.ServerEntry> txtServer;
     // End of variables declaration//GEN-END:variables
 
     public javax.swing.JButton getBtnConnect()

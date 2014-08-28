@@ -21,13 +21,13 @@ package me.StevenLawson.BukkitTelnetClient;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
+import java.util.Collection;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 public class BTC_FavoriteButtonsPanel extends JPanel
 {
-    public BTC_FavoriteButtonsPanel(final List<FavoriteButtonData> buttonList)
+    public BTC_FavoriteButtonsPanel(final Collection<FavoriteButtonEntry> buttonList)
     {
         super.setLayout(new GridLayout(0, 2, 1, 1));
 
@@ -43,7 +43,7 @@ public class BTC_FavoriteButtonsPanel extends JPanel
             }
         };
 
-        for (final FavoriteButtonData buttonData : buttonList)
+        for (final FavoriteButtonEntry buttonData : buttonList)
         {
             final JButton button = new JButton();
             button.setText(buttonData.getLabel());
