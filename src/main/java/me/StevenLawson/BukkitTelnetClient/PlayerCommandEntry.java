@@ -18,13 +18,16 @@
  */
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.util.List;
-import org.w3c.dom.*;
+import java.util.HashSet;
 
-public class PlayerCommandEntry
+public class PlayerCommandEntry implements ConfigEntry
 {
-    private final String name;
-    private final String format;
+    private String name;
+    private String format;
+
+    public PlayerCommandEntry()
+    {
+    }
 
     public PlayerCommandEntry(String name, String format)
     {
@@ -32,64 +35,47 @@ public class PlayerCommandEntry
         this.format = format;
     }
 
+    @ConfigEntryList.ParameterGetter(name = "format")
     public String getFormat()
     {
         return format;
     }
 
+    @ConfigEntryList.ParameterSetter(name = "format")
+    public void setFormat(String format)
+    {
+        this.format = format;
+    }
+
+    @ConfigEntryList.ParameterGetter(name = "name")
     public String getName()
     {
         return name;
     }
 
-    public static Element listToXML(final List<PlayerCommandEntry> playerCommands, final Document doc)
+    @ConfigEntryList.ParameterSetter(name = "name")
+    public void setName(String name)
     {
-        final Element plcElement = doc.createElement("playerCommands");
-
-        for (final PlayerCommandEntry command : playerCommands)
-        {
-            final Element commandElement = doc.createElement("playerCommand");
-            plcElement.appendChild(commandElement);
-
-            final Element commandName = doc.createElement("name");
-            commandName.appendChild(doc.createTextNode(command.getName()));
-            commandElement.appendChild(commandName);
-
-            final Element commandFormat = doc.createElement("format");
-            commandFormat.appendChild(doc.createTextNode(command.getFormat()));
-            commandElement.appendChild(commandFormat);
-        }
-
-        return plcElement;
+        this.name = name;
     }
 
-    public static boolean xmlToList(final List<PlayerCommandEntry> playerCommands, final Document doc)
+    public static class PlayerCommandEntryList extends ConfigEntryList<PlayerCommandEntry>
     {
-        NodeList playerCommandNodes = doc.getDocumentElement().getElementsByTagName("playerCommands");
-        if (playerCommandNodes.getLength() < 1)
+        public PlayerCommandEntryList()
         {
-            return false;
-        }
-        playerCommandNodes = playerCommandNodes.item(0).getChildNodes();
-
-        playerCommands.clear();
-
-        for (int i = 0; i < playerCommandNodes.getLength(); i++)
-        {
-            final Node node = playerCommandNodes.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE)
-            {
-                final Element element = (Element) node;
-
-                final PlayerCommandEntry command = new PlayerCommandEntry(
-                        element.getElementsByTagName("name").item(0).getTextContent(),
-                        element.getElementsByTagName("format").item(0).getTextContent()
-                );
-
-                playerCommands.add(command);
-            }
+            super(new HashSet<PlayerCommandEntry>(), PlayerCommandEntry.class);
         }
 
-        return true;
+        @Override
+        public String getParentElementName()
+        {
+            return "playerCommands";
+        }
+
+        @Override
+        public String getItemElementName()
+        {
+            return "playerCommand";
+        }
     }
 }

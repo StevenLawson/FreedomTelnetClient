@@ -397,7 +397,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                                         }
                                         case "Copy UUID":
                                         {
-                                            copyToClipboard(_player.getName());
+                                            copyToClipboard(_player.getUuid());
                                             BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied UUID to clipboard: " + _player.getUuid()));
                                             break;
                                         }

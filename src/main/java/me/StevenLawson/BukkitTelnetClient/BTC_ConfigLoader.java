@@ -34,8 +34,8 @@ public class BTC_ConfigLoader
 {
     private static final String SETTINGS_FILE = "settings.xml";
 
-    private final List<PlayerCommandEntry> playerCommands = new ArrayList<>();
     private final ServerEntry.ServerEntryList servers = new ServerEntry.ServerEntryList();
+    private final PlayerCommandEntry.PlayerCommandEntryList playerCommands = new PlayerCommandEntry.PlayerCommandEntryList();
 
     public BTC_ConfigLoader()
     {
@@ -92,9 +92,9 @@ public class BTC_ConfigLoader
         return generateXML(new File(SETTINGS_FILE));
     }
 
-    public List<PlayerCommandEntry> getCommands()
+    public Collection<PlayerCommandEntry> getCommands()
     {
-        return this.playerCommands;
+        return this.playerCommands.getList();
     }
 
     public Collection<ServerEntry> getServers()
@@ -111,7 +111,7 @@ public class BTC_ConfigLoader
             final Element rootElement = doc.createElement("configuration");
             doc.appendChild(rootElement);
 
-            rootElement.appendChild(PlayerCommandEntry.listToXML(this.playerCommands, doc));
+            rootElement.appendChild(this.playerCommands.toXML(doc));
             rootElement.appendChild(this.servers.toXML(doc));
 
             final Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -139,7 +139,7 @@ public class BTC_ConfigLoader
             final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
             doc.getDocumentElement().normalize();
 
-            if (!PlayerCommandEntry.xmlToList(this.playerCommands, doc))
+            if (!this.playerCommands.fromXML(doc))
             {
                 System.out.println("Error loading playerCommands.");
                 hadErrors = true;
