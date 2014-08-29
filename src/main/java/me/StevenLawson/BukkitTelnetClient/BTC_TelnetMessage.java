@@ -125,7 +125,8 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
         PREPROCESS_COMMAND(PATTERN_PREFIX + "\\[PREPROCESS_COMMAND\\] ", DARK_GREEN),
         //
         ISSUED_SERVER_COMMAND(PATTERN_PREFIX + ".+? issued server command: "),
-        PLAYER_COMMAND(PATTERN_PREFIX + "\\[PLAYER_COMMAND\\] ");
+        PLAYER_COMMAND(PATTERN_PREFIX + "\\[PLAYER_COMMAND\\] "),
+       IMPOSTER_JOIN(PATTERN_PREFIX + "Warning: .+? has been flagged as an impostor and has been frozen!", Color.red);
 
         private final Pattern messagePattern;
         private final Color color;
