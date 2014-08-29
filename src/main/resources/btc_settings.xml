@@ -74,6 +74,10 @@
             <name>Seen IP</name>
             <format>seen $TARGET_IP</format>
         </playerCommand>
+        <playerCommand>
+            <name>Clear Nickname</name>
+            <format>nick $TARGET_NAME off</format>
+        </playerCommand>
     </playerCommands>
     <favoriteButtons>
         <favoriteButton>

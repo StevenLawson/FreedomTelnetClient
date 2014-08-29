@@ -18,6 +18,8 @@
  */
 package me.StevenLawson.BukkitTelnetClient;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UnsupportedLookAndFeelException;

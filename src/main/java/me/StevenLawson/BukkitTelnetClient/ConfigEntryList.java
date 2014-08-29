@@ -18,6 +18,7 @@
  */
 package me.StevenLawson.BukkitTelnetClient;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -55,7 +56,15 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
 
             for (final Method method : getEntryClass().getDeclaredMethods())
             {
-                final ParameterGetter annotation = method.getDeclaredAnnotation(ParameterGetter.class);
+                ParameterGetter annotation = null;
+                for (Annotation _annotation : method.getDeclaredAnnotations())
+                {
+                    if (_annotation instanceof ParameterGetter)
+                    {
+                        annotation = (ParameterGetter) _annotation;
+                        break;
+                    }
+                }
                 if (annotation == null)
                 {
                     continue;
@@ -114,7 +123,15 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
                 final Element itemElement = (Element) itemNode;
                 for (final Method method : getEntryClass().getDeclaredMethods())
                 {
-                    final ParameterSetter annotation = method.getDeclaredAnnotation(ParameterSetter.class);
+                    ParameterSetter annotation = null;
+                    for (Annotation _annotation : method.getDeclaredAnnotations())
+                    {
+                        if (_annotation instanceof ParameterSetter)
+                        {
+                            annotation = (ParameterSetter) _annotation;
+                            break;
+                        }
+                    }
                     if (annotation == null)
                     {
                         continue;

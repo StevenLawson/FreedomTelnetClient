@@ -112,6 +112,12 @@ public class BTC_PlayerListDecoder
                 {
                     return array.getJSONObject(index++);
                 }
+
+                @Override
+                public void remove()
+                {
+                    throw new UnsupportedOperationException();
+                }
             };
         }
     }

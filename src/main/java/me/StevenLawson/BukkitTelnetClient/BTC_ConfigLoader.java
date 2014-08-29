@@ -32,7 +32,7 @@ import org.xml.sax.SAXException;
 
 public class BTC_ConfigLoader
 {
-    private static final String SETTINGS_FILE = "settings.xml";
+    private static final String SETTINGS_FILE = "btc_settings.xml";
 
     private final ServerEntry.ServerEntryList servers = new ServerEntry.ServerEntryList();
     private final PlayerCommandEntry.PlayerCommandEntryList playerCommands = new PlayerCommandEntry.PlayerCommandEntryList();
@@ -44,7 +44,7 @@ public class BTC_ConfigLoader
 
     public boolean load(boolean verbose)
     {
-        File settings = new File("settings.xml");
+        File settings = new File(SETTINGS_FILE);
 
         if (!settings.exists())
         {
