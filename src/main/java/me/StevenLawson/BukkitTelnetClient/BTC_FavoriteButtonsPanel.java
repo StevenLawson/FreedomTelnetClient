@@ -29,7 +29,7 @@ public class BTC_FavoriteButtonsPanel extends JPanel
 {
     public BTC_FavoriteButtonsPanel(final Collection<FavoriteButtonEntry> buttonList)
     {
-        super.setLayout(new GridLayout(0, 2, 1, 1));
+        super.setLayout(new GridBagLayout());
 
         final ActionListener actionListener = new ActionListener()
         {
@@ -43,6 +43,8 @@ public class BTC_FavoriteButtonsPanel extends JPanel
             }
         };
 
+        int x = 0;
+        int y = 0;
         for (final FavoriteButtonEntry buttonData : buttonList)
         {
             final JButton button = new JButton();
@@ -50,11 +52,20 @@ public class BTC_FavoriteButtonsPanel extends JPanel
             button.setActionCommand(buttonData.getCommand());
             button.addActionListener(actionListener);
 
-            final Dimension max = button.getMaximumSize();
-            max.setSize(max.getWidth(), 10);
-            button.setMaximumSize(max);
+            GridBagConstraints gridBagConstraints = new GridBagConstraints();
+            gridBagConstraints.gridx = x;
+            gridBagConstraints.gridy = y;
+            gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints.ipadx = 1;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+            gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
+            add(button, gridBagConstraints);
 
-            add(button);
+            if (++x > 1)
+            {
+                x = 0;
+                y++;
+            }
         }
     }
 

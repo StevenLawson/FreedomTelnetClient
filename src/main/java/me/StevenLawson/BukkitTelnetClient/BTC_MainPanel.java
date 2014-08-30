@@ -161,7 +161,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
                     if (!vScroll.getValueIsAdjusting())
                     {
-                        if (vScroll.getValue() + vScroll.getModel().getExtent() >= (vScroll.getMaximum() - 10))
+                        if (vScroll.getValue() + vScroll.getModel().getExtent() >= (vScroll.getMaximum() - 50))
                         {
                             BTC_MainPanel.this.mainOutput.setCaretPosition(startLength);
 
