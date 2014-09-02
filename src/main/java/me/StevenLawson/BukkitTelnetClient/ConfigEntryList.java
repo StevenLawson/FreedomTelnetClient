@@ -18,7 +18,6 @@
  */
 package me.StevenLawson.BukkitTelnetClient;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -43,54 +42,6 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
     public Class<E> getEntryClass()
     {
         return entryClass;
-    }
-
-    public Element listToXML(final Document doc)
-    {
-        final Element parent = doc.createElement(getParentElementName());
-
-        for (final E entry : getList())
-        {
-            final Element item = doc.createElement(getItemElementName());
-            parent.appendChild(item);
-
-            for (final Method method : getEntryClass().getDeclaredMethods())
-            {
-                ParameterGetter annotation = null;
-                for (Annotation _annotation : method.getDeclaredAnnotations())
-                {
-                    if (_annotation instanceof ParameterGetter)
-                    {
-                        annotation = (ParameterGetter) _annotation;
-                        break;
-                    }
-                }
-                if (annotation == null)
-                {
-                    continue;
-                }
-
-                final Element parameter = doc.createElement(annotation.name());
-
-                Object value = null;
-                try
-                {
-                    value = method.invoke(entry);
-                }
-                catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex)
-                {
-                    BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
-                }
-                if (value != null)
-                {
-                    parameter.appendChild(doc.createTextNode(value.toString()));
-                }
-
-                item.appendChild(parameter);
-            }
-        }
-
-        return parent;
     }
 
     public boolean listFromXML(final Document doc)
@@ -123,15 +74,7 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
                 final Element itemElement = (Element) itemNode;
                 for (final Method method : getEntryClass().getDeclaredMethods())
                 {
-                    ParameterSetter annotation = null;
-                    for (Annotation _annotation : method.getDeclaredAnnotations())
-                    {
-                        if (_annotation instanceof ParameterSetter)
-                        {
-                            annotation = (ParameterSetter) _annotation;
-                            break;
-                        }
-                    }
+                    final ParameterSetter annotation = BukkitTelnetClient.getDeclaredAnnotation(method, ParameterSetter.class);
                     if (annotation == null)
                     {
                         continue;
@@ -166,6 +109,46 @@ public abstract class ConfigEntryList<E extends ConfigEntry>
         }
 
         return true;
+    }
+
+    public Element listToXML(final Document doc)
+    {
+        final Element parent = doc.createElement(getParentElementName());
+
+        for (final E entry : getList())
+        {
+            final Element item = doc.createElement(getItemElementName());
+            parent.appendChild(item);
+
+            for (final Method method : getEntryClass().getDeclaredMethods())
+            {
+                final ParameterGetter annotation = BukkitTelnetClient.getDeclaredAnnotation(method, ParameterGetter.class);
+                if (annotation == null)
+                {
+                    continue;
+                }
+
+                final Element parameter = doc.createElement(annotation.name());
+
+                Object value = null;
+                try
+                {
+                    value = method.invoke(entry);
+                }
+                catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex)
+                {
+                    BukkitTelnetClient.LOGGER.log(Level.SEVERE, null, ex);
+                }
+                if (value != null)
+                {
+                    parameter.appendChild(doc.createTextNode(value.toString()));
+                }
+
+                item.appendChild(parameter);
+            }
+        }
+
+        return parent;
     }
 
     public abstract String getParentElementName();

@@ -22,7 +22,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.UnsupportedLookAndFeelException;
 
 public class BukkitTelnetClient
 {
@@ -77,9 +76,28 @@ public class BukkitTelnetClient
                 javax.swing.UIManager.setLookAndFeel(fallbackStyle.getClassName());
             }
         }
-        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex)
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex)
         {
             LOGGER.log(Level.SEVERE, null, ex);
         }
+    }
+
+    // JDK 7 safe getDeclaredAnnotation
+    public static <T extends Annotation> T getDeclaredAnnotation(final Method method, final Class<T> annotationClass)
+    {
+        java.util.Objects.requireNonNull(annotationClass);
+
+        T annotation = null;
+
+        for (final Annotation _annotation : method.getDeclaredAnnotations())
+        {
+            if (_annotation.annotationType() == annotationClass)
+            {
+                annotation = annotationClass.cast(_annotation);
+                break;
+            }
+        }
+
+        return annotation;
     }
 }
