@@ -503,7 +503,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         jLabel2 = new javax.swing.JLabel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        tblPlayersScroll = new javax.swing.JScrollPane();
         tblPlayers = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         txtNumPlayers = new javax.swing.JTextField();
@@ -513,8 +513,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
         chkShowChatOnly = new javax.swing.JCheckBox();
         chkIgnoreErrors = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jPanel5 = new BTC_FavoriteButtonsPanel(favButtonList);
+        favoriteButtonsPanelHolder = new javax.swing.JPanel();
+        favoriteButtonsPanelScroll = new javax.swing.JScrollPane();
+        favoriteButtonsPanel = new BTC_FavoriteButtonsPanel(favButtonList);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BukkitTelnetClient");
@@ -625,7 +626,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         tblPlayers.setAutoCreateRowSorter(true);
         tblPlayers.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane2.setViewportView(tblPlayers);
+        tblPlayersScroll.setViewportView(tblPlayers);
         tblPlayers.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
         jLabel3.setText("# Players:");
@@ -639,7 +640,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+                    .addComponent(tblPlayersScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -651,7 +652,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+                .addComponent(tblPlayersScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
@@ -707,25 +708,29 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         jTabbedPane1.addTab("Filters", jPanel1);
 
-        jScrollPane1.setBorder(null);
+        favoriteButtonsPanelHolder.setLayout(new java.awt.BorderLayout());
 
-        jPanel5.setLayout(null);
-        jScrollPane1.setViewportView(jPanel5);
+        favoriteButtonsPanelScroll.setBorder(null);
+
+        favoriteButtonsPanel.setLayout(null);
+        favoriteButtonsPanelScroll.setViewportView(favoriteButtonsPanel);
+
+        favoriteButtonsPanelHolder.add(favoriteButtonsPanelScroll, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGap(0, 0, 0)
+                .addComponent(favoriteButtonsPanelHolder, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, 0))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addComponent(favoriteButtonsPanelHolder, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -810,6 +815,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JCheckBox chkIgnorePlayerCommands;
     private javax.swing.JCheckBox chkIgnoreServerCommands;
     private javax.swing.JCheckBox chkShowChatOnly;
+    private javax.swing.JPanel favoriteButtonsPanel;
+    private javax.swing.JPanel favoriteButtonsPanelHolder;
+    private javax.swing.JScrollPane favoriteButtonsPanelScroll;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -817,14 +825,12 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextPane mainOutput;
     private javax.swing.JScrollPane mainOutputScoll;
     private javax.swing.JSplitPane splitPane;
     private javax.swing.JTable tblPlayers;
+    private javax.swing.JScrollPane tblPlayersScroll;
     private javax.swing.JTextField txtCommand;
     private javax.swing.JTextField txtNumPlayers;
     private javax.swing.JComboBox<me.StevenLawson.BukkitTelnetClient.ServerEntry> txtServer;
