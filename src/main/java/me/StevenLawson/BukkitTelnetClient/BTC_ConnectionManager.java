@@ -1,9 +1,9 @@
 /* 
  * Copyright (C) 2012-2014 Steven Lawson
  *
- * This file is part of BukkitTelnetClient.
+ * This file is part of FreedomTelnetClient.
  *
- * BukkitTelnetClient is free software: you can redistribute it and/or modify
+ * FreedomTelnetClient is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -270,16 +270,16 @@ public class BTC_ConnectionManager
         {
             if (loginName == null)
             {
-                title = String.format("BukkitTelnetClient - %s - %s:%d", BukkitTelnetClient.VERSION_STRING, hostname, port);
+                title = String.format("FreedomTelnetClient - %s - %s:%d", BukkitTelnetClient.VERSION_STRING, hostname, port);
             }
             else
             {
-                title = String.format("BukkitTelnetClient - %s - %s@%s:%d", BukkitTelnetClient.VERSION_STRING, loginName, hostname, port);
+                title = String.format("FreedomTelnetClient - %s - %s@%s:%d", BukkitTelnetClient.VERSION_STRING, loginName, hostname, port);
             }
         }
         else
         {
-            title = String.format("BukkitTelnetClient - %s - Disconnected", BukkitTelnetClient.VERSION_STRING);
+            title = String.format("FreedomTelnetClient - %s - Disconnected", BukkitTelnetClient.VERSION_STRING);
         }
 
         mainPanel.setTitle(title);

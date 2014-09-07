@@ -1,9 +1,9 @@
 /* 
  * Copyright (C) 2012-2014 Steven Lawson
  *
- * This file is part of BukkitTelnetClient.
+ * This file is part of FreedomTelnetClient.
  *
- * BukkitTelnetClient is free software: you can redistribute it and/or modify
+ * FreedomTelnetClient is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
