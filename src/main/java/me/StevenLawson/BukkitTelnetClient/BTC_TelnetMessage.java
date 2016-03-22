@@ -118,7 +118,7 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
         SAY_MESSAGE(PATTERN_PREFIX + "\\[Server:", Color.BLUE),
         CSAY_MESSAGE(PATTERN_PREFIX + "\\[CONSOLE\\]<", Color.BLUE),
         //
-        ADMINSAY_MESSAGE(PATTERN_PREFIX + "\\[TotalFreedomMod\\] \\[ADMIN\\] ", PURPLE),
+        ADMINSAY_MESSAGE(PATTERN_PREFIX + "\\[ChickenFreedomMod\\] \\[ADMIN\\] ", PURPLE),
         //
         WORLD_EDIT(PATTERN_PREFIX + "WorldEdit: ", Color.RED),
         //
