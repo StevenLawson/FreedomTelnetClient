@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2012-2014 Steven Lawson
+ * Copyright (C) 2012-2017 Steven Lawson
  *
  * This file is part of FreedomTelnetClient.
  *
@@ -30,7 +30,6 @@ import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.text.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 public class BTC_MainPanel extends javax.swing.JFrame
 {
@@ -128,16 +127,14 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     private void writeToConsoleImmediately(final BTC_ConsoleMessage message, final boolean isTelnetError)
     {
-        SwingUtilities.invokeLater(new Runnable()
+        SwingUtilities.invokeLater(() ->
         {
-            @Override
-            public void run()
+            if (isTelnetError && chkIgnoreErrors.isSelected())
             {
-                if (isTelnetError && chkIgnoreErrors.isSelected())
-                {
-                    return;
-                }
-
+                // Do Nothing
+            }
+            else
+            {
                 final StyledDocument styledDocument = mainOutput.getStyledDocument();
 
                 int startLength = styledDocument.getLength();
@@ -146,7 +143,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 {
                     styledDocument.insertString(
                             styledDocument.getLength(),
-                            message.getMessage() + SystemUtils.LINE_SEPARATOR,
+                            message.getMessage() + System.lineSeparator(),
                             StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, message.getColor())
                     );
                 }
@@ -165,14 +162,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                         {
                             BTC_MainPanel.this.mainOutput.setCaretPosition(startLength);
 
-                            final Timer timer = new Timer(10, new ActionListener()
-                            {
-                                @Override
-                                public void actionPerformed(ActionEvent ae)
-                                {
-                                    vScroll.setValue(vScroll.getMaximum());
-                                }
-                            });
+                            final Timer timer = new Timer(10, event -> vScroll.setValue(vScroll.getMaximum()));
                             timer.setRepeats(false);
                             timer.start();
                         }
@@ -241,26 +231,22 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     public final void updatePlayerList(final String selectedPlayerName)
     {
-        EventQueue.invokeLater(new Runnable()
+        EventQueue.invokeLater(() ->
         {
-            @Override
-            public void run()
+            playerListTableModel.fireTableDataChanged();
+
+            BTC_MainPanel.this.txtNumPlayers.setText("" + playerList.size());
+
+            if (selectedPlayerName != null)
             {
-                playerListTableModel.fireTableDataChanged();
+                final JTable table = BTC_MainPanel.this.tblPlayers;
+                final ListSelectionModel selectionModel = table.getSelectionModel();
 
-                BTC_MainPanel.this.txtNumPlayers.setText("" + playerList.size());
-
-                if (selectedPlayerName != null)
+                for (PlayerInfo player : playerList)
                 {
-                    final JTable table = BTC_MainPanel.this.tblPlayers;
-                    final ListSelectionModel selectionModel = table.getSelectionModel();
-
-                    for (PlayerInfo player : playerList)
+                    if (player.getName().equals(selectedPlayerName))
                     {
-                        if (player.getName().equals(selectedPlayerName))
-                        {
-                            selectionModel.setSelectionInterval(0, table.convertRowIndexToView(playerList.indexOf(player)));
-                        }
+                        selectionModel.setSelectionInterval(0, table.convertRowIndexToView(playerList.indexOf(player)));
                     }
                 }
             }
@@ -337,44 +323,40 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
                         popup.addSeparator();
 
-                        final ActionListener popupAction = new ActionListener()
+                        final ActionListener popupAction = actionEvent ->
                         {
-                            @Override
-                            public void actionPerformed(ActionEvent actionEvent)
+                            Object _source = actionEvent.getSource();
+                            if (_source instanceof PlayerListPopupItem_Command)
                             {
-                                Object _source = actionEvent.getSource();
-                                if (_source instanceof PlayerListPopupItem_Command)
-                                {
-                                    final PlayerListPopupItem_Command source = (PlayerListPopupItem_Command) _source;
-                                    final String output = source.getCommand().buildOutput(source.getPlayer(), true);
-                                    BTC_MainPanel.this.getConnectionManager().sendDelayedCommand(output, true, 100);
-                                }
-                                else if (_source instanceof PlayerListPopupItem)
-                                {
-                                    final PlayerListPopupItem source = (PlayerListPopupItem) _source;
+                                final PlayerListPopupItem_Command source = (PlayerListPopupItem_Command) _source;
+                                final String output = source.getCommand().buildOutput(source.getPlayer(), true);
+                                BTC_MainPanel.this.getConnectionManager().sendDelayedCommand(output, true, 100);
+                            }
+                            else if (_source instanceof PlayerListPopupItem)
+                            {
+                                final PlayerListPopupItem source = (PlayerListPopupItem) _source;
 
-                                    final PlayerInfo _player = source.getPlayer();
+                                final PlayerInfo _player = source.getPlayer();
 
-                                    switch (actionEvent.getActionCommand())
+                                switch (actionEvent.getActionCommand())
+                                {
+                                    case "Copy IP":
                                     {
-                                        case "Copy IP":
-                                        {
-                                            copyToClipboard(_player.getIp());
-                                            BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied IP to clipboard: " + _player.getIp()));
-                                            break;
-                                        }
-                                        case "Copy Name":
-                                        {
-                                            copyToClipboard(_player.getName());
-                                            BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied name to clipboard: " + _player.getName()));
-                                            break;
-                                        }
-                                        case "Copy UUID":
-                                        {
-                                            copyToClipboard(_player.getUuid());
-                                            BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied UUID to clipboard: " + _player.getUuid()));
-                                            break;
-                                        }
+                                        copyToClipboard(_player.getIp());
+                                        BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied IP to clipboard: " + _player.getIp()));
+                                        break;
+                                    }
+                                    case "Copy Name":
+                                    {
+                                        copyToClipboard(_player.getName());
+                                        BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied name to clipboard: " + _player.getName()));
+                                        break;
+                                    }
+                                    case "Copy UUID":
+                                    {
+                                        copyToClipboard(_player.getUuid());
+                                        BTC_MainPanel.this.writeToConsole(new BTC_ConsoleMessage("Copied UUID to clipboard: " + _player.getUuid()));
+                                        break;
                                     }
                                 }
                             }

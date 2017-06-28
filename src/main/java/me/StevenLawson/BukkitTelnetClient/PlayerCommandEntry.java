@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2012-2014 Steven Lawson
+ * Copyright (C) 2012-2017 Steven Lawson
  *
  * This file is part of FreedomTelnetClient.
  *
@@ -86,7 +86,7 @@ public class PlayerCommandEntry extends ConfigEntry
     {
         public PlayerCommandEntryList()
         {
-            super(new ArrayList<PlayerCommandEntry>(), PlayerCommandEntry.class);
+            super(new ArrayList<>(), PlayerCommandEntry.class);
         }
 
         @Override

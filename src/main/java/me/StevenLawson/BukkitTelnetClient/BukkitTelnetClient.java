@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2012-2014 Steven Lawson
+ * Copyright (C) 2012-2017 Steven Lawson
  *
  * This file is part of FreedomTelnetClient.
  *
@@ -18,14 +18,17 @@
  */
 package me.StevenLawson.BukkitTelnetClient;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 
 public class BukkitTelnetClient
 {
-    public static final String VERSION_STRING = "v2.0.5";
+    public static final String VERSION_STRING = getVersionString();
     public static final Logger LOGGER = Logger.getLogger(BukkitTelnetClient.class.getName());
     public static BTC_MainPanel mainPanel = null;
     public static BTC_ConfigLoader config = new BTC_ConfigLoader();
@@ -36,14 +39,10 @@ public class BukkitTelnetClient
 
         findAndSetLookAndFeel("Windows");
 
-        java.awt.EventQueue.invokeLater(new Runnable()
+        SwingUtilities.invokeLater(() ->
         {
-            @Override
-            public void run()
-            {
-                mainPanel = new BTC_MainPanel();
-                mainPanel.setup();
-            }
+            mainPanel = new BTC_MainPanel();
+            mainPanel.setup();
         });
     }
 
@@ -99,5 +98,20 @@ public class BukkitTelnetClient
         }
 
         return annotation;
+    }
+
+    public static String getVersionString()
+    {
+        try (final InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("my.properties"))
+        {
+            final Properties properties = new Properties();
+            properties.load(inputStream);
+            return String.format("v%s", properties.getProperty("version"));
+        }
+        catch (Exception ex)
+        {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+        return "Unknown";
     }
 }

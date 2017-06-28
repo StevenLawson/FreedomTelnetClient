@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2012-2014 Steven Lawson
+ * Copyright (C) 2012-2017 Steven Lawson
  *
  * This file is part of FreedomTelnetClient.
  *
@@ -19,7 +19,6 @@
 package me.StevenLawson.BukkitTelnetClient;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import javax.swing.JButton;
@@ -31,15 +30,11 @@ public class BTC_FavoriteButtonsPanel extends JPanel
     {
         super.setLayout(new GridBagLayout());
 
-        final ActionListener actionListener = new ActionListener()
+        final ActionListener actionListener = event ->
         {
-            @Override
-            public void actionPerformed(final ActionEvent event)
+            if (BukkitTelnetClient.mainPanel != null)
             {
-                if (BukkitTelnetClient.mainPanel != null)
-                {
-                    BukkitTelnetClient.mainPanel.getConnectionManager().sendDelayedCommand(event.getActionCommand(), true, 100);
-                }
+                BukkitTelnetClient.mainPanel.getConnectionManager().sendDelayedCommand(event.getActionCommand(), true, 100);
             }
         };
 

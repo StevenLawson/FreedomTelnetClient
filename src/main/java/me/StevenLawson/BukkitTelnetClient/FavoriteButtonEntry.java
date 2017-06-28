@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2012-2014 Steven Lawson
+ * Copyright (C) 2012-2017 Steven Lawson
  *
  * This file is part of FreedomTelnetClient.
  *
@@ -57,7 +57,7 @@ public class FavoriteButtonEntry extends ConfigEntry
     {
         public FavoriteButtonEntryList()
         {
-            super(new ArrayList<FavoriteButtonEntry>(), FavoriteButtonEntry.class);
+            super(new ArrayList<>(), FavoriteButtonEntry.class);
         }
 
         @Override

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2012-2014 Steven Lawson
+ * Copyright (C) 2012-2017 Steven Lawson
  *
  * This file is part of FreedomTelnetClient.
  *
@@ -19,15 +19,13 @@
 package me.StevenLawson.BukkitTelnetClient;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.Timer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 
@@ -142,7 +140,7 @@ public class BTC_ConnectionManager
                 return;
             }
 
-            this.telnetClient.getOutputStream().write((text + "\r\n").getBytes());
+            this.telnetClient.getOutputStream().write((text + "\r\n").getBytes(StandardCharsets.UTF_8));
             this.telnetClient.getOutputStream().flush();
         }
         catch (IOException ex)
@@ -153,15 +151,7 @@ public class BTC_ConnectionManager
 
     public void sendDelayedCommand(final String text, final boolean verbose, final int delay)
     {
-        final Timer timer = new Timer(delay, new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                sendCommand(text, verbose);
-            }
-        });
-
+        final Timer timer = new Timer(delay, event -> sendCommand(text, verbose));
         timer.setRepeats(false);
         timer.start();
     }
@@ -173,74 +163,70 @@ public class BTC_ConnectionManager
             return;
         }
 
-        this.connectThread = new Thread(new Runnable()
+        this.connectThread = new Thread(() ->
         {
-            @Override
-            public void run()
+            final BTC_MainPanel btc = BukkitTelnetClient.mainPanel;
+
+            try
             {
-                final BTC_MainPanel btc = BukkitTelnetClient.mainPanel;
+                BTC_ConnectionManager.this.telnetClient.connect(hostname, port);
+                BTC_ConnectionManager.this.canDoDisconnect = true;
 
-                try
+                btc.getBtnSend().setEnabled(true);
+                btc.getTxtCommand().setEnabled(true);
+                btc.getTxtCommand().requestFocusInWindow();
+
+                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(telnetClient.getInputStream(), StandardCharsets.UTF_8)))
                 {
-                    BTC_ConnectionManager.this.telnetClient.connect(hostname, port);
-                    BTC_ConnectionManager.this.canDoDisconnect = true;
-
-                    btc.getBtnSend().setEnabled(true);
-                    btc.getTxtCommand().setEnabled(true);
-                    btc.getTxtCommand().requestFocusInWindow();
-
-                    try (final BufferedReader reader = new BufferedReader(new InputStreamReader(telnetClient.getInputStream())))
+                    String line;
+                    while ((line = reader.readLine()) != null)
                     {
-                        String line;
-                        while ((line = reader.readLine()) != null)
+                        String _loginName = null;
+                        if (BTC_ConnectionManager.this.loginName == null)
                         {
-                            String _loginName = null;
-                            if (BTC_ConnectionManager.this.loginName == null)
+                            _loginName = checkForLoginMessage(line);
+                        }
+                        if (_loginName != null)
+                        {
+                            BTC_ConnectionManager.this.loginName = _loginName;
+                            updateTitle(true);
+                            sendDelayedCommand("telnet.enhanced", false, 100);
+                        }
+                        else
+                        {
+                            final PlayerInfo selectedPlayer = btc.getSelectedPlayer();
+                            String selectedPlayerName = null;
+                            if (selectedPlayer != null)
                             {
-                                _loginName = checkForLoginMessage(line);
+                                selectedPlayerName = selectedPlayer.getName();
                             }
-                            if (_loginName != null)
+
+                            if (BTC_PlayerListDecoder.checkForPlayerListMessage(line, btc.getPlayerList()))
                             {
-                                BTC_ConnectionManager.this.loginName = _loginName;
-                                updateTitle(true);
-                                sendDelayedCommand("telnet.enhanced", false, 100);
+                                btc.updatePlayerList(selectedPlayerName);
                             }
                             else
                             {
-                                final PlayerInfo selectedPlayer = btc.getSelectedPlayer();
-                                String selectedPlayerName = null;
-                                if (selectedPlayer != null)
+                                final BTC_TelnetMessage message = new BTC_TelnetMessage(line);
+                                if (!message.skip())
                                 {
-                                    selectedPlayerName = selectedPlayer.getName();
-                                }
-
-                                if (BTC_PlayerListDecoder.checkForPlayerListMessage(line, btc.getPlayerList()))
-                                {
-                                    btc.updatePlayerList(selectedPlayerName);
-                                }
-                                else
-                                {
-                                    final BTC_TelnetMessage message = new BTC_TelnetMessage(line);
-                                    if (!message.skip())
-                                    {
-                                        btc.writeToConsole(message);
-                                    }
+                                    btc.writeToConsole(message);
                                 }
                             }
                         }
                     }
-
-                    triggerDisconnect();
-                }
-                catch (IOException ex)
-                {
-                    btc.writeToConsole(new BTC_ConsoleMessage(ex.getMessage() + SystemUtils.LINE_SEPARATOR + ExceptionUtils.getStackTrace(ex)));
                 }
 
-                finishDisconnect();
-
-                BTC_ConnectionManager.this.connectThread = null;
+                triggerDisconnect();
             }
+            catch (IOException ex)
+            {
+                btc.writeToConsole(new BTC_ConsoleMessage(ex.getMessage() + System.lineSeparator() + ExceptionUtils.getStackTrace(ex)));
+            }
+
+            finishDisconnect();
+
+            BTC_ConnectionManager.this.connectThread = null;
         });
         this.connectThread.start();
     }

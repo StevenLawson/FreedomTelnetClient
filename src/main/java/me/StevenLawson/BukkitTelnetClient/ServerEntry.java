@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2012-2014 Steven Lawson
+ * Copyright (C) 2012-2017 Steven Lawson
  *
  * This file is part of FreedomTelnetClient.
  *
@@ -121,7 +121,7 @@ public class ServerEntry extends ConfigEntry
     {
         public ServerEntryList()
         {
-            super(new HashSet<ServerEntry>(), ServerEntry.class);
+            super(new HashSet<>(), ServerEntry.class);
         }
 
         @Override
