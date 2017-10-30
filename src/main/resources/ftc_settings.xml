@@ -117,7 +117,7 @@
             <command>purgeall</command>
         </favoriteButton>
         <favoriteButton>
-            <label>Set Limit = 500</label>
+            <label>Set Limit = 2500</label>
             <command>setl</command>
         </favoriteButton>
         <favoriteButton>
